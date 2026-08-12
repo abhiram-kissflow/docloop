@@ -14,13 +14,23 @@ import Link from 'next/link';
  * make a nav unreadable.
  */
 
-/** Ordered deliberately: the biggest producer first, then by how directly a human acts on it. */
-const SOURCES: { key: string; label: string; hint: string }[] = [
-  { key: 'mining', label: 'Tickets', hint: 'Raised from recurring support questions' },
-  { key: 'staleness', label: 'Code changes', hint: 'Raised when a push touched documented code' },
-  { key: 'release', label: 'Releases', hint: 'Raised when a release shipped something user-visible' },
-  { key: 'whatsnew', label: "What's New", hint: 'Drafted changelog entries awaiting review' },
+/**
+ * Ordered deliberately: the biggest producer first, then by how directly a human acts on it.
+ *
+ * `command` is the worker that fills each source. It lives here, beside the label, because the
+ * empty state needs it and the two must not drift: an empty Releases view that tells you to run
+ * the MINING worker is worse than telling you nothing, and that is exactly what a single shared
+ * WORKER_COMMAND constant produced.
+ */
+export const SOURCES: { key: string; label: string; hint: string; command: string }[] = [
+  { key: 'mining', label: 'Tickets', hint: 'Raised from recurring support questions', command: 'node worker/index.mjs' },
+  { key: 'staleness', label: 'Code changes', hint: 'Raised when a push touched documented code', command: 'node worker/staleness.mjs' },
+  { key: 'release', label: 'Releases', hint: 'Raised when a release shipped something user-visible', command: 'node worker/newdoc.mjs' },
+  { key: 'whatsnew', label: "What's New", hint: 'Drafted changelog entries awaiting review', command: 'node worker/whatsnew.mjs' },
 ];
+
+/** The nav's own vocabulary, for anything that has to name a source outside the nav. */
+export const sourceMeta = (key: string | null) => SOURCES.find((s) => s.key === key) ?? null;
 
 export default function SourceNav({
   active,

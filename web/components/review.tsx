@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Header from './header';
-import SourceNav from './source-nav';
+import SourceNav, { sourceMeta } from './source-nav';
 import { absoluteTime, plural, relativeTime, suggestionTitle } from './format';
 import { WORKER_COMMAND, type Stats, type Suggestion } from './types';
 
@@ -85,8 +85,15 @@ export default function Review({
   }, [rows, selectedId]);
 
   const selected = rows.find((s) => s.id === selectedId) ?? null;
-  // Live count. The query is capped, so anything the cap hid is added back —
-  // and that overflow is recomputed on every refresh rather than accumulated.
+  // Live count of the WHOLE queue, not the filtered view. stats.pending is global and
+  // suggestions is whatever this filter returned, so the difference is everything not on
+  // screen — rows hidden by the 200-row cap AND rows belonging to other sources. Adding it
+  // back to the visible rows gives a number that agrees with the nav's "All" and still
+  // decrements as you decide things.
+  //
+  // The header must be global. It sits directly above a nav that counts every source, and two
+  // numbers on one screen disagreeing about the same word teaches a reader to trust neither.
+  // The count for THIS filter is the one over the queue pane, where it is unambiguous.
   const overflow = Math.max(0, stats.pending - suggestions.length);
   const pending = rows.length + overflow;
 
@@ -279,7 +286,7 @@ export default function Review({
   if (rows.length === 0) {
     return (
       <div className="dl-app">
-        <Header pending={0} lastRun={stats.lastRun} nav={<SourceNav active={activeSource} bySource={stats.bySource} />}>
+        <Header pending={pending} lastRun={stats.lastRun} nav={<SourceNav active={activeSource} bySource={stats.bySource} />}>
           <Link className="dl-btn dl-btn--quiet" href="/patterns">
             Patterns
           </Link>
@@ -287,7 +294,7 @@ export default function Review({
         </Header>
         <div className="dl-pane">
           <div className="dl-pane-body">
-            <QueueEmpty stats={stats} cleared={removed.length > 0} />
+            <QueueEmpty stats={stats} cleared={removed.length > 0} activeSource={activeSource} />
           </div>
         </div>
         {helpOpen && <HelpOverlay onClose={() => setHelpOpen(false)} />}
@@ -509,7 +516,23 @@ function Evidence({
   );
 }
 
-function QueueEmpty({ stats, cleared }: { stats: Stats; cleared: boolean }) {
+/**
+ * Two different emptinesses, and conflating them was a lie on the screen.
+ *
+ * "This filter has nothing" is not "the queue is clear". With 24 pending and the Releases filter
+ * active, the global copy told a writer every suggestion had been decided and offered them the
+ * mining worker to run. Both false, and the false one is the kind a reader acts on: they close
+ * the tab believing there is no work.
+ */
+function QueueEmpty({
+  stats,
+  cleared,
+  activeSource,
+}: {
+  stats: Stats;
+  cleared: boolean;
+  activeSource: string | null;
+}) {
   // When the last row leaves there is no next row to take focus, so the heading
   // that replaced the queue takes it instead. Focus is never dropped to <body>.
   const heading = useRef<HTMLHeadingElement>(null);
@@ -517,15 +540,32 @@ function QueueEmpty({ stats, cleared }: { stats: Stats; cleared: boolean }) {
     if (cleared) heading.current?.focus();
   }, [cleared]);
 
+  const meta = sourceMeta(activeSource);
+  // Elsewhere means exactly that: pending rows this filter is hiding. If it is zero the queue
+  // really is clear and the global wording is the true one.
+  const elsewhere = meta ? stats.pending : 0;
+  const command = meta?.command ?? WORKER_COMMAND;
+
   return (
     <section className="dl-prose">
       <h1 className="text-md" ref={heading} tabIndex={-1}>
-        The queue is empty.
+        {elsewhere > 0 ? `Nothing pending from ${meta!.label}.` : 'The queue is empty.'}
       </h1>
-      <p className="text-muted mt-2">
-        Every suggestion the worker has produced so far has been decided. Nothing publishes without
-        passing through this screen, so there is nothing outstanding.
-      </p>
+      {elsewhere > 0 ? (
+        <p className="text-muted mt-2">
+          This filter is empty — the queue is not. {elsewhere} suggestion{elsewhere === 1 ? '' : 's'}{' '}
+          {elsewhere === 1 ? 'is' : 'are'} waiting under the other sources.{' '}
+          <Link className="underline" href="/">
+            See all {elsewhere}
+          </Link>
+          .
+        </p>
+      ) : (
+        <p className="text-muted mt-2">
+          Every suggestion the workers have produced so far has been decided. Nothing publishes
+          without passing through this screen, so there is nothing outstanding.
+        </p>
+      )}
 
       <dl className="mt-8 text-sm">
         <Fact
@@ -541,9 +581,11 @@ function QueueEmpty({ stats, cleared }: { stats: Stats; cleared: boolean }) {
         />
       </dl>
 
-      <p className="text-muted mt-8">Run it again from the repository root:</p>
+      <p className="text-muted mt-8">
+        {meta ? `Fill this source from the repository root:` : 'Run it again from the repository root:'}
+      </p>
       <p className="dl-mono mt-2 inline-block rounded border border-line bg-surface px-2 py-1 text-ink">
-        {WORKER_COMMAND}
+        {command}
       </p>
     </section>
   );
