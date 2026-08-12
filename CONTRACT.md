@@ -1,6 +1,6 @@
 # Docloop — build contract
 
-Frozen interface between `web/` (Vercel receiver) and `worker/` (Mac worker).
+Frozen interface between `web/` (cloud receiver) and `worker/` (Mac worker).
 Both are built independently against this file. **Do not change shapes here without
 updating both sides.** Everything not specified here is the implementing agent's call.
 
@@ -548,7 +548,8 @@ the worker's subprocess buffer is 64 MB, so a rambling model reaches it on an or
 > in `validateIngest`. The caps are individually correct and collectively multiply: description
 > 2,000 + 50 questions × 500 + 20 bodies × 5,000 = 127,000 chars per pattern, × the 100-pattern cap
 > = **12.7 M chars**, every one of them through a still-quadratic rule. Server-side that exceeds
-> Vercel's 300 s function ceiling outright. The denial-of-service moved from a rambling model to a
+> the platform's request ceiling outright — 300 s on the old Vercel target, the same 300 s
+> default on Cloud Run today. The denial-of-service moved from a rambling model to a
 > *compliant* one.
 >
 > The fix is to remove the quadratic at source: **bound the quantifiers.** RFC 5321 caps an email
@@ -632,19 +633,33 @@ Rules:
 - Divergence between the two implementations becomes a failing self-check rather than a silent
   asymmetry. That is the entire point of the file.
 
+> **Amendment, hosting target.** This document was written against Vercel. Vercel was never
+> actually used — the marketplace Postgres terms never registered — and the deployment target is
+> now Google Cloud Run with Cloud SQL. Only the platform NAMES changed here; not one interface,
+> route, header, status code or guarantee moved. The split between a cloud receiver and a Mac
+> worker is unchanged, and it was never really about which cloud.
+
 ## 7. Environment variables
 
-`web/.env.example` (and Vercel project env):
+`web/.env.example` (locally) and Secret Manager (deployed):
 ```
 DATABASE_URL=
 GITHUB_WEBHOOK_SECRET=
 GENERIC_HOOK_TOKEN=
 WORKER_API_KEY=
+DASHBOARD_PASSWORD=
 ```
 `worker/` reads: `DOCLOOP_API_URL`, `WORKER_API_KEY`.
 
-Postgres is provisioned later via the `vercel:marketplace` skill — build against a
-`DATABASE_URL` placeholder and make `lib/db.ts` a thin `pg.Pool` singleton.
+Deployed, every one of these except `DATABASE_URL` arrives from Secret Manager rather than from an
+env var, because `gcloud run services describe` shows env vars to anyone with viewer access.
+`DATABASE_URL` carries the user and the Cloud SQL socket path but NOT the password; node-postgres
+picks that up from `PGPASSWORD`, which is itself a secret.
+
+Postgres is Cloud SQL (`db-f1-micro`, ENTERPRISE edition) in the same GCP project, reached over a
+unix socket at `/cloudsql/<connection-name>`. `lib/db.ts` stays a thin `pg.Pool` singleton, and it
+must NOT set `ssl` on a socket connection — a socket carries no hostname, so a naive is-local check
+misses it and configures TLS on a transport that cannot do TLS.
 
 ## 8. House rules (ponytail)
 

@@ -8,7 +8,10 @@ This document is the design; `PLAN.md` is the execution plan it expands, `CONTRA
 interface between the two running components. Facts from PLAN.md are stated here as facts;
 everything else is marked as a proposal and is open to change.
 
-**Status:** Workstream A (ticket-signal mining) is being built now as a working vertical slice.
+**Status:** Workstreams A (ticket mining), B1 (code staleness) and C (new docs + What's New) are
+BUILT and running. Deployed to Google Cloud Run at
+https://docloop-767032787396.us-central1.run.app with Cloud SQL Postgres. B2 (UI staleness), the
+media pipeline and publish-back remain designed and not built.
 Workstreams B and C, and the media pipeline, are designed here and built later.
 
 ---
@@ -77,7 +80,7 @@ and whether publish-back is ever possible.
 
 ```
 GitHub ──webhook──▶ ┌────────────────────┐        ┌──────────────────────────┐
-Intercom ─API/hook▶ │  Vercel app (web/) │◀─poll──│  Mac worker (worker/)     │
+Intercom ─API/hook▶ │ Cloud Run app (web/)│◀─poll──│  Mac worker (worker/)     │
 3rd party ─webhook▶ │  Next.js + Postgres│──jobs─▶│  Node + launchd           │
                     │  dashboard + queue │◀─post──│  claude -p (skills),      │
                     └────────────────────┘ results│  Playwright, HyperFrames, │
@@ -87,7 +90,7 @@ Intercom ─API/hook▶ │  Vercel app (web/) │◀─poll──│  Mac worke
 
 Two components, and the split is forced rather than chosen.
 
-**Why not all on Vercel:** the heavy work needs a real machine with local tooling — headless
+**Why not all in the cloud:** the heavy work needs a real machine with local tooling — headless
 Claude Code with its skills (`doc-prep`, `doc-coauthoring`, `eos`, `tech-writing`,
 `kf-whatsnew-writer`), a Playwright browser driving the live product, HyperFrames, ffmpeg,
 ElevenLabs, and read access to the graphify graph on disk. None of that fits in a serverless
@@ -96,13 +99,13 @@ function: wrong runtime, wrong timeouts, no browser, no persistent filesystem, n
 **Why not all on the Mac:** webhooks need a stable public HTTPS endpoint that is up when the
 laptop is not, and the dashboard has to be reachable by the rest of the team.
 
-So: Vercel is the **receiver and the record**; the Mac is the **brain and the hands**. One small
+So: Cloud Run is the **receiver and the record**; the Mac is the **brain and the hands**. One small
 HTTP API between them, and the queue is a Postgres table, not a broker.
 
-### Vercel app (`web/`)
+### Cloud Run app (`web/`)
 
 Next.js App Router, Node runtime throughout (never edge — HMAC verification needs raw bytes and
-`node:crypto`). Postgres provisioned through the Vercel Marketplace.
+`node:crypto`). Postgres is Cloud SQL in the same GCP project, reached over a unix socket.
 
 | Route | Purpose | Auth |
 |---|---|---|
@@ -386,7 +389,7 @@ Honest state as of this writing.
 | Jira / Linear | write (doc tasks) | API | post-C | **deferred** |
 | Slack | write (queue notifications) | webhook | post-A | **deferred** |
 | Third-party / feature flags | read | `POST /api/hooks/generic`, bearer token | C | **built-not-wired** — route exists, no producer yet |
-| Vercel Postgres | read/write | `pg` pool | all | **live** — provisioned via `vercel:marketplace` |
+| Cloud SQL Postgres | read/write | `pg` pool over a unix socket | all | **live** — `db-f1-micro`, ENTERPRISE edition |
 | graphify cross-repo graph | read | local JSON on the Mac | index seeding, B1 | **live** — file exists |
 | `codebase-memory-mcp` | read | MCP | B1, C | **live** |
 | Playwright / HyperFrames / ffmpeg / ElevenLabs | local | CLI + MCP on the Mac | B2, media | **live** on the machine, **designed** in Docloop |
@@ -400,7 +403,7 @@ usually because it needs an admin decision.
 
 | Phase | What ships | What it unblocks | Needed from the user |
 |---|---|---|---|
-| **A — demand side** (now) | Vercel app, Postgres, GitHub + generic webhooks, jobs/results API, dashboard; worker mining Intercom into patterns, questionnaires, suggestions | The queue, the review habit, the first prioritisation signal | Confirmation the Intercom MCP path is acceptable; who owns the review queue |
+| **A — demand side** (built) | Cloud Run app, Postgres, GitHub + generic webhooks, jobs/results API, dashboard; worker mining Intercom into patterns, questionnaires, suggestions | The queue, the review habit, the first prioritisation signal | Confirmation the Intercom MCP path is acceptable; who owns the review queue |
 | **A.5 — seed the index** | `articles` populated with feature mappings from the graphify graph | Everything in B and C — this is the gate | **The doc platform answer** (§11); a writer's time to review the bulk mapping |
 | **B1 — codebase staleness** | Push → changed files → features → impacted articles → claim-level fact-check → `update` suggestions | The core differentiator vs a UI-only tool | GitHub org/repo decision plus admin rights to create webhooks; a noise-filter tuning pass |
 | **B2 — UI staleness** | Scripted Playwright walkthroughs replaying documented steps against the live product | Catching drift that never shows as a mapped diff | A stable test account with safe data; confirmation article screenshots are retrievable |
@@ -423,7 +426,7 @@ things a human already approved.
 | **Monorepo webhook noise** | Two large repos; most pushes touch nothing documented. Undamped, B1 floods the queue and gets ignored. | The B1 filter chain: default branch only, drop paths with no graph node, drop nodes with no article mapping, batch a day's survivors into one job. Tune against real push volume before enabling notifications. |
 | **Review-queue fatigue** | The system's only output is work for a small team. A low-precision queue is abandoned in two weeks and the project quietly dies. | Priority = ticket volume × staleness score, so the top of the queue is the highest-value item. Start with a small `--top` (5). Track approve-vs-dismiss ratio as the health metric — a persistently high dismissal rate means the signal is bad, not that writers are lazy. Ship each phase only when the previous one's precision holds. |
 | **Cost of classification** | Every cycle runs LLM calls over a window of conversations; long windows and frequent schedules multiply that. | Six-hour interval, not continuous. Bounded 30-day window. Only the top N patterns get questionnaires. Deterministic filters (graph lookups, regex, path matching) run *before* any LLM call. Graph refresh is AST-only, no LLM cost. |
-| **Worker is a single point of failure on one Mac** | If the laptop is asleep, closed or reimaged, nothing runs — and the Playwright and media work genuinely cannot move to Vercel. | Blast radius contained: Vercel keeps receiving and storing webhooks regardless, so no signal is lost, the queue just drains later. Jobs are claimed atomically and re-runnable, and `index.mjs` runs one cycle and exits, so a crash is never a stuck daemon. Upgrade path: a persistent Mac with the same toolchain — the HTTP contract does not change. |
+| **Worker is a single point of failure on one Mac** | If the laptop is asleep, closed or reimaged, nothing runs — and the Playwright and media work genuinely cannot move into a request-scoped container. | Blast radius contained: Cloud Run keeps receiving and storing webhooks regardless, so no signal is lost, the queue just drains later. Jobs are claimed atomically and re-runnable, and `index.mjs` runs one cycle and exits, so a crash is never a stuck daemon. Upgrade path: a persistent Mac with the same toolchain — the HTTP contract does not change. |
 | **Index rot** | The doc↔code mapping is the keystone; if it silently goes wrong, every workstream produces confident nonsense. | Seed once with human review, re-check mappings whenever the graph is refreshed, and treat an article whose mapped nodes vanished from the graph as a signal in itself. |
 
 ### 10.0 The article↔code mapping is unsolved, and it gates B1
@@ -595,7 +598,7 @@ These come from PLAN.md §8. None of them block the MVP; all of them block somet
 
 | Question | Why it matters | Who can answer | What it blocks |
 |---|---|---|---|
-| **Which platform hosts the docs today?** | Determines `articles.external_id` and `platform`, how we read existing article text and screenshots, and whether publish-back is possible at all. The highest-leverage unknown in this document. | Abhiram / doc team | Index seeding (A.5), and therefore B1, B2, C, and publish-back |
+| ~~**Which platform hosts the docs today?**~~ **ANSWERED.** The docs live on community.kissflow.com under a `documentation-section` category, with `/t/<id>/<slug>` URLs. 646 topics were imported with their full text, category path and last-updated date, which is what unblocked B1 linking to real articles. Publish-back is now a question of that platform's write API rather than of which platform it is. | — | Was blocking index seeding, B1, B2, C and publish-back |
 | **Intercom developer-app / webhook setup — who owns workspace admin?** | Moves Workstream A from a polled window to event-driven, and enables signature verification on `/api/hooks/intercom`, currently a documented TODO. | Whoever administers the Intercom workspace | Live Intercom webhooks; faster A cycles |
 | **Which GitHub org and repos get webhooks, and how is monorepo noise filtered?** | Nothing in B1 fires without a webhook on the right repos, and an unfiltered firehose makes B1 useless even when it does fire. Creating the webhook needs admin rights. | GitHub org admin; engineering leads on the two repos | B1 entirely |
 | **Who owns the review queue inside the TW team?** | Without a named owner the queue is nobody's job and the loop stalls at the last step. Four writers on the team; individual roles not yet assigned. | The TW lead | Sustained operation of every phase; the approve/dismiss health metric |

@@ -31,14 +31,14 @@ Cross-cutting requirements:
 - Human review gates all publishes — never auto-publish.
 
 Decisions already made with user:
-- **Form factor: Vercel receiver + Mac worker.** Vercel app receives webhooks and hosts dashboard/queue; the Mac runs a worker doing all heavy lifting (Claude Code skills, Playwright, HyperFrames, ffmpeg, ElevenLabs).
+- **Form factor: cloud receiver + Mac worker.** The hosted app receives webhooks and hosts dashboard/queue; the Mac runs a worker doing all heavy lifting (Claude Code skills, Playwright, HyperFrames, ffmpeg, ElevenLabs).
 - **Scope this round: blueprint + MVP slice** (Workstream A vertical). Everything else designed in the blueprint, built later.
 
 ## 3. Architecture
 
 ```
 GitHub ──webhook──▶ ┌────────────────────┐        ┌──────────────────────────┐
-Intercom ─API/hook▶ │  Vercel app (web/) │◀─poll──│  Mac worker (worker/)     │
+Intercom ─API/hook▶ │ Cloud Run app (web/)│◀─poll──│  Mac worker (worker/)     │
 3rd party ─webhook▶ │  Next.js + Postgres│──jobs─▶│  Node + launchd           │
                     │  dashboard + queue │◀─post──│  claude -p (skills),      │
                     └────────────────────┘ results│  Playwright, HyperFrames, │
@@ -46,13 +46,15 @@ Intercom ─API/hook▶ │  Vercel app (web/) │◀─poll──│  Mac worke
                                                   └──────────────────────────┘
 ```
 
-- **Vercel app** (`~/docloop/web`, Next.js App Router, Node runtime — NOT edge):
+- **Cloud Run app** (`~/docloop/web`, Next.js App Router, Node runtime — NOT edge):
   - `/api/hooks/github` — HMAC-verified (X-Hub-Signature-256), stores push/release/PR events.
   - `/api/hooks/intercom` — endpoint exists from day 1; live wiring deferred (needs Intercom developer-app setup).
   - `/api/hooks/generic` — bearer-token-protected catch-all for third-party tools.
   - `/api/jobs` — worker pulls pending jobs (auth: `WORKER_API_KEY` bearer). `/api/results` — worker posts outputs.
   - Dashboard (single page to start): pattern leaderboard, questionnaire per pattern, suggestion queue with approve/dismiss.
-  - **Postgres via Vercel Marketplace** — executing agent MUST load the `vercel:marketplace` skill before provisioning; do not hand-pick a provider.
+  - **Postgres via Cloud SQL**, `db-f1-micro` on the ENTERPRISE edition, in the same GCP project.
+    (Originally specified as Vercel Marketplace Postgres. That never provisioned — the terms
+    acceptance failed three times — and the hosting target moved to Google Cloud.)
 - **Mac worker** (`~/docloop/worker`, single Node script + launchd plist):
   - Poll loop: fetch jobs → execute → post results.
   - Classification/drafting via headless Claude: `claude -p "<prompt>"` (skills accessible).
@@ -80,15 +82,20 @@ Intercom ─API/hook▶ │  Vercel app (web/) │◀─poll──│  Mac worke
 2. **MVP slice (working code):**
    - `web/`: Next.js scaffold, Postgres provisioned (marketplace skill), schema above, GitHub webhook route (HMAC-verified, live), generic webhook route, jobs/results API, dashboard page.
    - `worker/`: Intercom API poll → classify via `claude -p` → aggregate patterns → questionnaires for top 5 → post suggestions. launchd plist (e.g. every 6h) but also runnable manually.
-   - Deployed to Vercel preview; one real end-to-end run on recent Intercom data.
-3. **Deferred explicitly** (designed, not built): staleness sweeps, UI diffing, drafting runs, media generation, Intercom/third-party live webhooks, publish-back integrations.
+   - Deployed to Cloud Run; one real end-to-end run on recent Intercom data.
+3. **Deferred explicitly** (designed, not built): UI diffing (B2), media generation, live
+   Intercom/third-party webhooks, publish-back integrations.
+
+   NOTE, written after the fact: staleness sweeps (B1) and drafting runs (C, including the
+   What's New path) were deferred here and have since been BUILT. The README's capability table
+   is the current source of truth for what exists.
 
 ## 6. Execution steps
 
 1. `mkdir ~/docloop`; write `BLUEPRINT.md` first (it's the contract).
-2. Scaffold `web/` (Next.js, TypeScript, App Router). Load `vercel:marketplace` skill → provision Postgres → apply schema (plain SQL migration file, no ORM — ponytail).
+2. Scaffold `web/` (Next.js, TypeScript, App Router). Provision Cloud SQL → apply schema (plain SQL migration file, no ORM — ponytail).
 3. Implement API routes + dashboard (single page, server components, no UI framework beyond Tailwind/shadcn if scaffold includes it).
-4. Deploy preview via `vercel` CLI (install if missing: `npm i -g vercel`). Set env: `DATABASE_URL`, `GITHUB_WEBHOOK_SECRET`, `GENERIC_HOOK_TOKEN`, `WORKER_API_KEY`.
+4. Deploy via `./scripts/deploy-gcp.sh`. Secrets live in Secret Manager, not in env vars: `DATABASE_URL` (socket path only), `PGPASSWORD`, `DASHBOARD_PASSWORD`, `GITHUB_WEBHOOK_SECRET`, `GENERIC_HOOK_TOKEN`, `WORKER_API_KEY`.
 5. USER ACTION: Intercom access token for the worker (or reuse existing Google-workspace-independent Intercom credentials); GitHub webhook creation on the target repo(s) (user must confirm which repos and has admin rights).
 6. Build `worker/` (one `index.mjs`, no framework): Intercom fetch (last 30 days conversations, paginated) → classification prompt → patterns/questionnaires → POST to web API. Write launchd plist to `~/Library/LaunchAgents/com.docloop.worker.plist` but **ask user before loading it**.
 7. End-to-end run + verification (§7).
