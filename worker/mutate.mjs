@@ -36,6 +36,12 @@ const SOURCES = [
   ...readdirSync(path.join(REPO, 'worker'))
     .filter((f) => f.endsWith('.mjs'))
     .map((f) => `worker/${f}`),
+  // Same lesson, one directory over: web/verify.mjs grew an import of scripts/import-docs.mjs
+  // and the baseline failed on a clean copy, reporting as "mutation test FAILED" rather than
+  // "file missing". Enumerate the directory instead of remembering to update a list.
+  ...readdirSync(path.join(REPO, 'scripts'))
+    .filter((f) => f.endsWith('.mjs'))
+    .map((f) => `scripts/${f}`),
   'web/lib/pure.mjs',
   'web/verify.mjs',
   'fixtures/pii.json',

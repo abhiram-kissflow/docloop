@@ -7,6 +7,7 @@
 // first failure aborts the run. Upgrade path: `node --test` if this grows past ~20 cases.
 
 import assert from 'node:assert/strict';
+import { parseCsv, htmlToText } from '../scripts/import-docs.mjs';
 import { createHmac } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import {
@@ -384,4 +385,52 @@ check('minimal valid payload defaults cleanly', () => {
   assert.equal(r.value.window_days, 30);
 });
 
+
+// ---- documentation import (scripts/import-docs.mjs) --------------------------
+//
+// A CSV reader nobody tests is a CSV reader that eats a field, and this one parses the entire
+// product documentation. The export it reads contains HTML bodies full of commas, quotes and
+// newlines, so every RFC 4180 escape below is one this input actually exercises.
+
+check('import: RFC 4180 quoting, doubled quotes, embedded newlines and CRLF', () => {
+  assert.deepEqual(parseCsv('a,b\n1,2'), [['a', 'b'], ['1', '2']]);
+  // A quoted field carrying the delimiter — every article body does this.
+  assert.deepEqual(parseCsv('a,b\n"x,y",2')[1], ['x,y', '2']);
+  // A doubled quote is one literal quote, not the end of the field.
+  assert.deepEqual(parseCsv('a\n"he said ""hi"""')[1], ['he said "hi"']);
+  // A newline INSIDE a quoted field must not start a row. This is the one that silently
+  // truncates an import: 646 rows become several thousand fragments.
+  assert.deepEqual(parseCsv('a,b\n"line1\nline2",2'), [['a', 'b'], ['line1\nline2', '2']]);
+  assert.deepEqual(parseCsv('a,b\r\n1,2'), [['a', 'b'], ['1', '2']]);
+  // A file with no trailing newline still yields its last row.
+  assert.equal(parseCsv('a\n1').length, 2);
+  // A leading BOM must not become part of the first column name.
+  assert.equal(parseCsv('﻿title,text\n1,2')[0][0], 'title');
+});
+
+check('import: HTML becomes text that keeps its structure', () => {
+  // Block boundaries are newlines, not spaces: a list of field types collapsed onto one line
+  // reads as prose and the reader loses the structure that made it a list.
+  assert.equal(htmlToText('<p>One</p><p>Two</p>'), 'One\nTwo');
+  assert.equal(htmlToText('<ul><li>A</li><li>B</li></ul>'), '- A\n- B');
+  assert.equal(htmlToText('a<br>b'), 'a\nb');
+  // Entities the export actually contains.
+  assert.equal(htmlToText('<p>you&rsquo;ll &amp; me &mdash; ok</p>'), 'you’ll & me — ok');
+  assert.equal(htmlToText('<p>&#8212;</p>'), '—');
+  // Script and style content is dropped entirely rather than becoming prose.
+  assert.ok(!htmlToText('<p>hi</p><script>var x=1;</script>').includes('var x'));
+  // Tags inside text must not survive: the body is rendered as escaped text, and a stray
+  // "<strong>" in a suggestion body is noise a writer has to read past.
+  assert.equal(htmlToText('<p>a <strong>b</strong> c</p>'), 'a b c');
+  assert.equal(htmlToText(null), '');
+  // Newlines in the SOURCE of a paragraph are whitespace, not line breaks — that is HTML, and
+  // treating them as breaks shattered every wrapped paragraph in the export into fragments.
+  assert.equal(htmlToText('<p>  a\n\n\n  b  </p>'), 'a b');
+  // But a newline inside <pre> is the entire point of <pre>, and this corpus is full of
+  // JavaScript samples. Collapsing those to one line would make the code unreadable.
+  assert.equal(htmlToText('<pre>let a = 1;\nlet b = 2;</pre>'), 'let a = 1;\nlet b = 2;');
+});
+
+// The summary belongs at the END. It sat above the suites appended after it, so those ran
+// but went uncounted — the same fault worker/verify.mjs had.
 console.log(`\n${n} checks passed.`);

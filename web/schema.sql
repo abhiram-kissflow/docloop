@@ -31,6 +31,29 @@ create table if not exists articles (
   features    jsonb not null default '[]'::jsonb
 );
 
+-- Article TEXT, added once a real export existed. Until this, the index knew that an article
+-- existed and what area it covered, but not a word of what it said — which is why B1 could only
+-- ever say "may be affected", why B2 was unbuildable (you cannot replay steps you cannot read),
+-- and why C chose create-vs-update on titles alone.
+--
+-- `body` is NOT subject to the §6.1 scrub, and that is deliberate. §6 governs ticket-derived
+-- text: attacker-influenced, customer-bearing, never published. An article is the opposite —
+-- authored by the documentation team, reviewed, and already public. Scrubbing it would delete
+-- legitimate documentation: 42 of 646 articles trip the guard, and every hit is the docs' own
+-- example content (a support address inside an email-configuration walkthrough, code samples
+-- containing URLs, a regex example, plan tables reading as digit runs).
+--
+-- `doc_updated_at` comes from the source system, not from us: it is when the WRITER last touched
+-- the article, which is the only half of a staleness comparison we could not previously see.
+alter table articles add column if not exists body           text;
+alter table articles add column if not exists category       text;
+alter table articles add column if not exists doc_updated_at timestamptz;
+alter table articles add column if not exists imported_at    timestamptz;
+
+-- Staleness asks "which articles cover this area and when were they last written", so the index
+-- is on the pair rather than either alone.
+create index if not exists articles_category_idx on articles (category, doc_updated_at desc);
+
 create table if not exists suggestions (
   id         bigserial primary key,
   type       text not null check (type in ('update','create','media')),
