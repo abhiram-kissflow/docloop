@@ -27,6 +27,30 @@ first four rows do.
 | Unattended scheduling (launchd) | Written, not loaded. Every run today is one you start. |
 | Public deployment | Not deployed yet. Target is Google Cloud Run, not Vercel — `scripts/deploy-gcp.sh` is written and waiting on a `gcloud auth login`. |
 
+## What it looks like
+
+**The review queue.** Four source tabs split the work by where it came from. The right pane shows evidence for the selected row: ticket questions, changed file paths, or a draft for review.
+
+![Review queue](screenshot-queue-all.png)
+
+**Evidence for a suggestion.** Machine-authored text is marked as generated. Ticket text is rendered as plain text on purpose — it can contain anything a customer typed, and rendering it as HTML is how a stored script tag would run.
+
+![Evidence pane](screenshot-evidence.png)
+
+**Pattern leaderboard.** Ranked by ticket count. Each pattern lists the questions that produced it, so a writer can research what users actually ask before deciding what to write.
+
+![Pattern leaderboard](screenshot-patterns.png)
+
+**Keyboard shortcuts.** The entire triage path — move through the queue, read evidence, approve, dismiss — works from the keyboard. Press `?` at any time.
+
+![Keyboard help](screenshot-keyboard-help.png)
+
+The What's New and Code changes tabs each show a different kind of suggestion:
+
+![What's New](screenshot-queue-whatsnew.png)
+
+![Code changes](screenshot-queue-code.png)
+
 ## Start it
 
 You need Postgres running and a database called `docloop`. It is already installed here as a Homebrew
@@ -148,6 +172,20 @@ Nothing happens until you run the worker, so the order is always: trigger, then 
 
 A published release raises two jobs, because it produces two different things: `newdoc.mjs`
 proposes the help article, `whatsnew.mjs` drafts the public changelog entry. Run both.
+
+### Drafting articles with /doc-coauthoring
+
+Once a release produces a `create` suggestion and a writer approves it, the next step is drafting
+the article body. Docloop uses Claude Code skills for this:
+
+1. **`/doc-prep`** — builds an outline from the graphify graph and fact-checks every behavioural
+   claim against the codebase. Nothing is written from the model's memory of how the product works.
+2. **`/doc-coauthoring`** — produces the article body following house style conventions.
+3. **`/eos`** — an Elements of Style review pass for grammar, composition, and tone.
+
+The approved suggestion carries the outline and fact-check results from step 1. Open it in Claude
+Code and run `/doc-coauthoring` to draft the article. The skill follows the conventions in
+`BLUEPRINT.md` §6 and the house style from `DESIGN.md`.
 
 To try it without waiting for a real event, send the webhook yourself. The feature-flag one is the
 easiest, since it only needs a bearer token:
