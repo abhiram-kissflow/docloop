@@ -25,7 +25,7 @@ first four rows do.
 | Media pipeline — GIFs and narrated video for a suggestion | Designed, not built. Needs a demo account with no customer data. |
 | Publish-back — push an approved edit to the doc platform | Designed, not built. |
 | Unattended scheduling (launchd) | Written, not loaded. Every run today is one you start. |
-| Public deployment | Not deployed yet. Target is Google Cloud Run, not Vercel — `scripts/deploy-gcp.sh` is written and waiting on a `gcloud auth login`. |
+| Public deployment | Not deployed yet. Target is Google Cloud Run — `scripts/deploy-gcp.sh` is written and waiting on a `gcloud auth login`. |
 
 ## What it looks like
 
@@ -262,8 +262,7 @@ passes when the thing it guards is broken is worse than no tests, because it is 
 ## Deploy it
 
 It runs on this Mac today. To put it on the internet, it goes to **Google Cloud Run** in the
-`kf-dev-research-ai` project, with **Cloud SQL Postgres** beside it. Vercel was the original target
-and was never actually used, so nothing is being migrated.
+`kf-dev-research-ai` project, with **Cloud SQL Postgres** beside it.
 
 > **Not yet run.** Every other command in this file was executed before it was written. This one
 > has not been, because it needs an interactive `gcloud auth login` that an agent session cannot
