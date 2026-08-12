@@ -1,0 +1,271 @@
+{
+  "_about": [
+    "Documentation category path -> product area, for B1 (codebase staleness).",
+    "",
+    "The doc platform's own category tree is authored by the documentation team and is a better",
+    "description of the doc side than anything derived: fixtures/code-areas.json had to be inferred",
+    "from graph communities because nothing authoritative existed. This is authoritative.",
+    "",
+    "HAND-ASSIGNED, like fixtures/taxonomy.json and for the same reason. 85 paths onto 14 areas is",
+    "a sitting an afternoon, not a modelling problem, and a wrong label here silently mis-routes",
+    "every article beneath it.",
+    "",
+    "A path may map to SEVERAL areas. 'Reports in Boards' is genuinely both boards-cases and",
+    "reports-analytics, and forcing a single tag would hide it from one of the two searches that",
+    "should find it.",
+    "",
+    "`unmapped` is deliberate and is NOT a todo list. An entry there has no honest single area, and",
+    "leaving it untagged means a code change never raises it — which is correct for a podcast, a",
+    "discontinued-services note, or a glossary whose area varies per term."
+  ],
+  "categories": {
+    "Product Documentation / 🎬 Getting started / Developer guide": [
+      "developer-sdk"
+    ],
+    "Product Documentation / 🎬 Getting started / Onboarding guide": [
+      "admin-environments"
+    ],
+    "Product Documentation / 📒 User guide / Account management / Account governance / Account governance": [
+      "access-governance"
+    ],
+    "Product Documentation / 📒 User guide / Account management / Account settings / Admin settings / Account security": [
+      "access-governance"
+    ],
+    "Product Documentation / 📒 User guide / Account management / Account settings / Admin settings / Account settings": [
+      "admin-environments"
+    ],
+    "Product Documentation / 📒 User guide / Account management / Account settings / Admin settings / Additional settings": [
+      "admin-environments"
+    ],
+    "Product Documentation / 📒 User guide / Account management / Account settings / Admin settings / Audit log": [
+      "access-governance"
+    ],
+    "Product Documentation / 📒 User guide / Account management / Account settings / Admin settings / Data backup": [
+      "admin-environments"
+    ],
+    "Product Documentation / 📒 User guide / Account management / Account settings / My settings / General settings": [
+      "admin-environments"
+    ],
+    "Product Documentation / 📒 User guide / Account management / Account settings / My settings / Notification settings": [
+      "notifications"
+    ],
+    "Product Documentation / 📒 User guide / Account management / Account settings / My settings / Security settings": [
+      "access-governance"
+    ],
+    "Product Documentation / 📒 User guide / Account management / Account settings / My settings / Themes": [
+      "pages-ui"
+    ],
+    "Product Documentation / 📒 User guide / Account management / Service accounts / Service accounts": [
+      "access-governance",
+      "api-platform"
+    ],
+    "Product Documentation / 📒 User guide / Account management / User and group management / Group management": [
+      "access-governance"
+    ],
+    "Product Documentation / 📒 User guide / Account management / User and group management / User management": [
+      "access-governance"
+    ],
+    "Product Documentation / 📒 User guide / Account management / User provisioning / Directory sync": [
+      "access-governance"
+    ],
+    "Product Documentation / 📒 User guide / Account management / User provisioning / SCIM provisioning": [
+      "access-governance"
+    ],
+    "Product Documentation / 📒 User guide / Analytics / Connector for BI": [
+      "reports-analytics",
+      "integrations"
+    ],
+    "Product Documentation / 📒 User guide / Analytics / Data sources in analytics": [
+      "reports-analytics"
+    ],
+    "Product Documentation / 📒 User guide / Analytics / Reports in analytics": [
+      "reports-analytics"
+    ],
+    "Product Documentation / 📒 User guide / Analytics / Use cases and solutions": [
+      "reports-analytics"
+    ],
+    "Product Documentation / 📒 User guide / Analytics / Working with Kissflow Analytics": [
+      "reports-analytics"
+    ],
+    "Product Documentation / 📒 User guide / Apps / App Store": [
+      "admin-environments"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Analytics in apps": [
+      "reports-analytics"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Boards in apps": [
+      "boards-cases"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Building & Deploying Apps (old)": [
+      "admin-environments"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Components": [
+      "pages-ui"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Connections": [
+      "integrations"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Dataforms (old)": [
+      "datasets"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Dataforms in apps": [
+      "datasets"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / External data object": [
+      "integrations",
+      "datasets"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Integrations in apps": [
+      "integrations"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Lists in apps": [
+      "datasets"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Model viewer": [
+      "pages-ui"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Navigation": [
+      "pages-ui"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Pages": [
+      "pages-ui"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Processes in apps": [
+      "process-workflow"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Resources": [
+      "admin-environments"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Roles and permissions": [
+      "access-governance"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Building apps / Variables": [
+      "developer-sdk",
+      "expressions"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Deploying apps": [
+      "admin-environments"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Introduction to Kissflow Apps": [
+      "admin-environments"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Settings / App settings": [
+      "admin-environments"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Settings / Developer settings": [
+      "developer-sdk"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Settings / Notification settings": [
+      "notifications"
+    ],
+    "Product Documentation / 📒 User guide / Apps / Settings / Theme settings": [
+      "pages-ui"
+    ],
+    "Product Documentation / 📒 User guide / Boards / Board views": [
+      "boards-cases"
+    ],
+    "Product Documentation / 📒 User guide / Boards / Boards": [
+      "boards-cases"
+    ],
+    "Product Documentation / 📒 User guide / Boards / Managing boards": [
+      "boards-cases"
+    ],
+    "Product Documentation / 📒 User guide / Boards / Reports in Boards / Board metrics": [
+      "boards-cases",
+      "reports-analytics"
+    ],
+    "Product Documentation / 📒 User guide / Boards / Reports in Boards / Custom reports in boards": [
+      "boards-cases",
+      "reports-analytics"
+    ],
+    "Product Documentation / 📒 User guide / Boards / Using boards": [
+      "boards-cases"
+    ],
+    "Product Documentation / 📒 User guide / Datasets / Administering datasets": [
+      "datasets"
+    ],
+    "Product Documentation / 📒 User guide / Datasets / Creating datasets": [
+      "datasets"
+    ],
+    "Product Documentation / 📒 User guide / Datasets / Dataset overview": [
+      "datasets"
+    ],
+    "Product Documentation / 📒 User guide / Datasets / Dataset views": [
+      "datasets"
+    ],
+    "Product Documentation / 📒 User guide / Decision tables / Decision tables for Kissflow Apps": [
+      "expressions"
+    ],
+    "Product Documentation / 📒 User guide / Forms & Expressions / Expressions": [
+      "expressions"
+    ],
+    "Product Documentation / 📒 User guide / Forms & Expressions / Fields / Dropdown fields": [
+      "forms-fields"
+    ],
+    "Product Documentation / 📒 User guide / Forms & Expressions / Fields / Field types": [
+      "forms-fields"
+    ],
+    "Product Documentation / 📒 User guide / Forms & Expressions / Fields / Fields": [
+      "forms-fields"
+    ],
+    "Product Documentation / 📒 User guide / Forms & Expressions / Fields / Remote lookup": [
+      "forms-fields",
+      "datasets"
+    ],
+    "Product Documentation / 📒 User guide / Forms & Expressions / Forms": [
+      "forms-fields"
+    ],
+    "Product Documentation / 📒 User guide / Forms & Expressions / Lists": [
+      "datasets"
+    ],
+    "Product Documentation / 📒 User guide / Integrations / Connector builder": [
+      "integrations"
+    ],
+    "Product Documentation / 📒 User guide / Integrations / Connectors": [
+      "integrations"
+    ],
+    "Product Documentation / 📒 User guide / Integrations / Integrations": [
+      "integrations"
+    ],
+    "Product Documentation / 📒 User guide / Integrations / Managing integrations": [
+      "integrations"
+    ],
+    "Product Documentation / 📒 User guide / Integrations / Use cases": [
+      "integrations"
+    ],
+    "Product Documentation / 📒 User guide / Portal / Portals": [
+      "portals"
+    ],
+    "Product Documentation / 📒 User guide / Processes / Administering processes": [
+      "process-workflow"
+    ],
+    "Product Documentation / 📒 User guide / Processes / Permission and actions": [
+      "process-workflow",
+      "access-governance"
+    ],
+    "Product Documentation / 📒 User guide / Processes / Process reports": [
+      "process-workflow",
+      "reports-analytics"
+    ],
+    "Product Documentation / 📒 User guide / Processes / Process workflows": [
+      "process-workflow"
+    ],
+    "Product Documentation / 📒 User guide / Processes / Processes": [
+      "process-workflow"
+    ],
+    "Product Documentation / 📒 User guide / Processes / Using processes": [
+      "process-workflow"
+    ]
+  },
+  "unmapped": {
+    "Product Documentation / 🎬 Getting started / Mobile guide": "cross-cutting: the mobile app spans every area, so any single tag would be wrong",
+    "Product Documentation / 🎧 Pulse Podcast": "not documentation; no code change invalidates a podcast episode",
+    "Product Documentation / 🔎 Quick references / Discontinued services": "describes what no longer exists; a code change cannot make it stale",
+    "Product Documentation / 🔎 Quick references / Frequently asked questions": "cross-cutting by construction",
+    "Product Documentation / 🔎 Quick references / Important information": "announcements, not feature documentation",
+    "Product Documentation / 🔎 Quick references / Kissflow glossary": "89 per-term definitions; the AREA is per entry, not per category, so a category-level tag would mislabel 88 of them",
+    "Product Documentation / 💼 Troubleshooting guide / Troubleshooting tips and tricks": "cross-cutting by construction",
+    "Product Documentation / 📒 User guide / Chats & Spaces / Chat": "collaboration surface with no area in the taxonomy",
+    "Product Documentation / 📒 User guide / Chats & Spaces / Spaces": "collaboration surface with no area in the taxonomy"
+  }
+}
