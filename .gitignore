@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.env*.local
+.vercel/
+*.log
+.DS_Store
+
+# agent scratch — screenshots and MCP artifacts, never committed
+.playwright-mcp/
+*.png

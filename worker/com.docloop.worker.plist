@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Docloop worker LaunchAgent. Runs one mining cycle every 6 hours.
+  This file is NOT loaded by the build — the user loads it themselves (see README.md).
+  Paths are absolute because launchd runs with a bare PATH.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.docloop.worker</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/abhiram/.nvm/versions/node/v22.22.1/bin/node</string>
+    <string>/Users/abhiram/docloop/worker/index.mjs</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/abhiram/docloop/worker</string>
+
+  <key>StartInterval</key>
+  <integer>21600</integer>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/abhiram/docloop/worker/logs/worker.out.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/abhiram/docloop/worker/logs/worker.err.log</string>
+
+  <!-- ponytail: secrets live in this plist rather than a keychain lookup.
+       Ceiling: plaintext in ~/Library/LaunchAgents (chmod 600 it).
+       Upgrade path: wrap the run in a shell script that does `security find-generic-password`. -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/Users/abhiram/.local/bin:/Users/abhiram/.nvm/versions/node/v22.22.1/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>DOCLOOP_API_URL</key>
+    <string>https://REPLACE-ME.vercel.app</string>
+    <key>WORKER_API_KEY</key>
+    <string>REPLACE-ME</string>
+    <key>CLAUDE_BIN</key>
+    <string>/Users/abhiram/.local/bin/claude</string>
+  </dict>
+</dict>
+</plist>

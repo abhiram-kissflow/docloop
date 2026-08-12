@@ -1,0 +1,552 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Tokens — DESIGN.md §Color, §Typography, §Layout, §Motion.
+   Values are verbatim from DESIGN.md. This file is the ONLY place in the
+   codebase where a colour literal may appear.
+   Light only, fully resolved. No dark values are defined or half-supported.
+--------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  /* Surface */
+  --bg:            oklch(1 0 0);              /* pure white — the mood lives in type and brand, not the paper */
+  --surface:       oklch(0.972 0.004 280);    /* panels, the evidence rail, table headers */
+  --line:          oklch(0.905 0.006 280);    /* hairlines, row dividers */
+  --line-strong:   oklch(0.820 0.008 280);    /* input borders, focused container edges */
+
+  /* Text */
+  --ink:           oklch(0.220 0.020 280);    /* body and headings — 13.6:1 on --bg */
+  --muted:         oklch(0.480 0.015 280);    /* secondary text, meta — 4.9:1 on --bg */
+
+  /* Brand */
+  --primary:       oklch(0.420 0.140 282);    /* selected row, primary action, focus ring */
+  --primary-hover: oklch(0.370 0.145 282);
+  --primary-tint:  oklch(0.965 0.020 282);    /* selected-row background wash */
+  --on-primary:    oklch(1 0 0);              /* white text on primary — 5.9:1 */
+
+  /* Accent — signal, not decoration */
+  --accent:        oklch(0.620 0.170 45);     /* marks, dots, rules. Never carries small text. */
+  --accent-ink:    oklch(0.440 0.130 45);     /* text on --accent-tint */
+  --accent-tint:   oklch(0.955 0.030 60);
+
+  /* Semantic state */
+  --ok-ink:        oklch(0.420 0.110 152);
+  --ok-tint:       oklch(0.955 0.030 152);
+  --danger-ink:    oklch(0.450 0.170 25);
+  --danger-tint:   oklch(0.960 0.025 25);
+
+  --focus:         var(--primary);
+
+  /* Type — fixed rem scale, ratio ~1.2. No clamp(). */
+  --t-meta:  0.75rem;    /* 12px — mono: counts, ids, timestamps */
+  --t-xs:    0.8125rem;  /* 13px — labels, table headers */
+  --t-sm:    0.9375rem;  /* 15px — dense UI body, list rows */
+  --t-base:  1rem;       /* 16px — prose: suggestion bodies, questionnaire questions */
+  --t-md:    1.1875rem;  /* 19px — section headings */
+  --t-lg:    1.5rem;     /* 24px — page title */
+
+  /* Layout */
+  --queue-w: 420px;
+  --prose-w: 68ch;
+
+  /* z-index scale — semantic, never arbitrary */
+  --z-sticky:   10;
+  --z-dropdown: 20;
+  --z-overlay:  30;
+  --z-toast:    40;
+
+  /* Motion — ease-out-quart, 150–200ms, state only */
+  --ease:      cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-color: 120ms;
+  --dur-leave: 180ms;
+  --dur-pane:  200ms;
+}
+
+/* ---------------------------------------------------------------------------
+   Tailwind wiring. `inline` so utilities resolve to the tokens above (and to
+   the next/font variables set on <html>) rather than to a copied value.
+   The `*: initial` resets delete Tailwind's stock palette and type scale, so
+   an off-system colour or size cannot be written as a utility class.
+--------------------------------------------------------------------------- */
+
+@theme inline {
+  --color-*: initial;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-tint: var(--primary-tint);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-tint: var(--accent-tint);
+  --color-ok-ink: var(--ok-ink);
+  --color-ok-tint: var(--ok-tint);
+  --color-danger-ink: var(--danger-ink);
+  --color-danger-tint: var(--danger-tint);
+  --color-transparent: transparent;
+
+  --text-*: initial;
+  --text-meta: var(--t-meta);
+  --text-xs: var(--t-xs);
+  --text-sm: var(--t-sm);
+  --text-base: var(--t-base);
+  --text-md: var(--t-md);
+  --text-lg: var(--t-lg);
+
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --ease-out-quart: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ------------------------------------------------------------------ base */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    height: 100%;
+  }
+
+  body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+    font-size: var(--t-sm);
+    font-weight: 400;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3 {
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  /* Focus is visibly managed everywhere and is never removed. */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--primary-tint);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+/* ------------------------------------------------------------ components */
+
+@layer components {
+
+  /* --- shell ------------------------------------------------------------ */
+
+  .dl-app {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    height: 100dvh;
+  }
+
+  .dl-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 49px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+
+  .dl-title {
+    font-size: var(--t-md);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .dl-panes {
+    display: grid;
+    grid-template-columns: var(--queue-w) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .dl-pane {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--bg);
+  }
+
+  .dl-pane--queue {
+    border-right: 1px solid var(--line);
+  }
+
+  .dl-pane-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    background: var(--bg);
+  }
+
+  .dl-pane-body {
+    padding: 24px 24px 64px;
+  }
+
+  /* --- queue row -------------------------------------------------------- */
+
+  .dl-row {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 20px 8px 18px;
+    border-left: 2px solid transparent;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    transition: background-color var(--dur-color) var(--ease);
+  }
+
+  .dl-row:hover {
+    background: var(--surface);
+  }
+
+  /* Pressing a row previews the wash it is about to take. The press state is
+     the destination state, so nothing new enters the palette to say "held". */
+  .dl-row:active {
+    background: var(--primary-tint);
+  }
+
+  .dl-row[aria-current="true"] {
+    background: var(--primary-tint);
+    /* The one 2px left marker in the system: it marks position, nothing else. */
+    border-left-color: var(--primary);
+  }
+
+  .dl-row-title {
+    font-size: var(--t-sm);
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .dl-row-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+    color: var(--muted);
+  }
+
+  /* The list closing over a completed decision is the feedback. Animating
+     height is normally avoided; nothing else conveys this as well. */
+  .dl-row--leaving {
+    animation: dl-leave var(--dur-leave) var(--ease) forwards;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  @keyframes dl-leave {
+    from { opacity: 1; max-height: 240px; }
+    to   { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; border-bottom-color: transparent; }
+  }
+
+  /* --- evidence --------------------------------------------------------- */
+
+  .dl-measure {
+    max-width: var(--prose-w);
+  }
+
+  .dl-prose {
+    max-width: var(--prose-w);
+    font-size: var(--t-base);
+    line-height: 1.6;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+
+  /* Only on the model-written body, which arrives with its own line breaks.
+     Never on a container: pre-wrap would render JSX source indentation. */
+  .dl-body {
+    white-space: pre-wrap;
+  }
+
+  .dl-block + .dl-block {
+    margin-top: 32px;
+  }
+
+  .dl-block-head {
+    font-size: var(--t-xs);
+    font-weight: 600;
+    color: var(--ink);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+    max-width: var(--prose-w);
+  }
+
+  /* Machine-authored rule: hairline + small mono label above model-written prose. */
+  .dl-machine {
+    max-width: var(--prose-w);
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-size: var(--t-meta);
+    color: var(--muted);
+  }
+
+  .dl-decide {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 48px;
+  }
+
+  /* --- primitives ------------------------------------------------------- */
+
+  .dl-mono {
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-size: var(--t-meta);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dl-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 14px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: var(--t-sm);
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-color) var(--ease),
+      border-color var(--dur-color) var(--ease),
+      color var(--dur-color) var(--ease);
+  }
+
+  .dl-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .dl-btn--primary {
+    background: var(--primary);
+    color: var(--on-primary);
+  }
+  .dl-btn--primary:hover:not(:disabled)  { background: var(--primary-hover); }
+  .dl-btn--primary:active:not(:disabled) { background: var(--primary-hover); }
+
+  .dl-btn--ghost {
+    background: var(--bg);
+    color: var(--ink);
+    border-color: var(--line-strong);
+  }
+  .dl-btn--ghost:hover:not(:disabled)  { background: var(--surface); }
+  .dl-btn--ghost:active:not(:disabled) { background: var(--surface); border-color: var(--ink); }
+
+  .dl-btn--danger {
+    background: var(--bg);
+    color: var(--danger-ink);
+    border-color: var(--line-strong);
+  }
+  .dl-btn--danger:hover:not(:disabled)  { background: var(--danger-tint); border-color: var(--danger-ink); }
+  .dl-btn--danger:active:not(:disabled) { background: var(--danger-tint); border-color: var(--danger-ink); }
+
+  .dl-btn--quiet {
+    height: 28px;
+    padding: 0 10px;
+    background: var(--bg);
+    color: var(--muted);
+    border-color: var(--line);
+    font-size: var(--t-xs);
+  }
+  .dl-btn--quiet:hover:not(:disabled)  { background: var(--surface); color: var(--ink); }
+  .dl-btn--quiet:active:not(:disabled) { background: var(--surface); color: var(--ink); border-color: var(--line-strong); }
+
+  /* Links carry the same state set as any other control. Violet on hover is the
+     one place the brand appears outside selection, focus, and the primary action —
+     it is marking "this leaves the page", which is the same job. */
+  .dl-link {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 2px;
+    transition:
+      color var(--dur-color) var(--ease),
+      text-decoration-color var(--dur-color) var(--ease);
+  }
+  .dl-link:hover  { color: var(--primary);       text-decoration-color: var(--primary); }
+  .dl-link:active { color: var(--primary-hover); text-decoration-color: var(--primary-hover); }
+
+  /* Status pill — tint fill, dark ink, no border, no icon. */
+  .dl-pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: var(--t-meta);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  .dl-pill--pending   { background: var(--accent-tint); color: var(--accent-ink); }
+  .dl-pill--approved  { background: var(--ok-tint);     color: var(--ok-ink); }
+  .dl-pill--dismissed { background: var(--surface);     color: var(--muted); }
+
+  .dl-kbd {
+    display: inline-block;
+    min-width: 22px;
+    padding: 1px 6px;
+    text-align: center;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-family: var(--font-plex-mono), ui-monospace, monospace;
+    font-size: var(--t-meta);
+    color: var(--ink);
+  }
+
+  .dl-input {
+    width: 100%;
+    height: 36px;
+    padding: 0 10px;
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    font-size: var(--t-sm);
+    font-family: inherit;
+    transition: border-color var(--dur-color) var(--ease);
+  }
+  .dl-input::placeholder { color: var(--muted); }
+  .dl-input:hover:not(:disabled) { border-color: var(--ink); }
+  .dl-input:disabled { opacity: 0.5; cursor: not-allowed; }
+  .dl-input[aria-invalid="true"] { border-color: var(--danger-ink); }
+
+  /* Skeleton — hairline and block placeholders matching final layout. */
+  .dl-skel {
+    display: block;
+    background: var(--surface);
+    border-radius: 3px;
+    height: 10px;
+  }
+
+  /* --- login ------------------------------------------------------------ */
+
+  .dl-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    padding: 24px;
+  }
+
+  .dl-login {
+    width: min(360px, 100%);
+  }
+
+  /* --- overlay ---------------------------------------------------------- */
+
+  .dl-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: color-mix(in oklch, var(--ink) 24%, transparent);
+  }
+
+  .dl-overlay-card {
+    width: min(420px, 100%);
+    padding: 20px;
+    background: var(--bg);
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+  }
+
+  /* --- narrow: one pane, evidence pushes over the queue ----------------- */
+
+  .dl-back { display: none; }
+
+  @media (max-width: 899px) {
+    .dl-panes {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .dl-panes > .dl-pane {
+      grid-row: 1;
+      grid-column: 1;
+    }
+    .dl-pane--queue {
+      border-right: 0;
+    }
+    /* The evidence pane pushes over the queue. It sits above the queue's own
+       sticky head, and its visibility flips only after the slide-out finishes. */
+    .dl-pane--evidence {
+      position: relative;
+      z-index: var(--z-dropdown);
+      transform: translateX(100%);
+      visibility: hidden;
+      border-left: 1px solid var(--line);
+      transition:
+        transform var(--dur-pane) var(--ease),
+        visibility 0s linear var(--dur-pane);
+    }
+    .dl-panes[data-view="evidence"] > .dl-pane--evidence {
+      transform: translateX(0);
+      visibility: visible;
+      transition:
+        transform var(--dur-pane) var(--ease),
+        visibility 0s;
+    }
+    .dl-back { display: inline-flex; }
+  }
+}
+
+/* --------------------------------------------------------------- motion */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Rows disappear immediately, panes swap without transform, colours change
+     without transition. No animation is load-bearing for comprehension. */
+  .dl-row--leaving {
+    animation: none;
+    display: none;
+  }
+  .dl-pane--evidence,
+  .dl-btn,
+  .dl-row,
+  .dl-link,
+  .dl-input {
+    transition: none;
+  }
+  @media (max-width: 899px) {
+    .dl-pane--evidence { transform: none; visibility: hidden; transition: none; }
+    .dl-panes[data-view="evidence"] > .dl-pane--evidence {
+      visibility: visible;
+      transition: none;
+    }
+  }
+}
