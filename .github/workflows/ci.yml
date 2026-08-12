@@ -1,0 +1,81 @@
+name: gates
+
+# Every gate this repo has, on every push and every PR. The five are not
+# interchangeable: three of them check behaviour, one checks types, and the
+# last one checks whether the other checks still mean anything.
+#
+# CONTRACT §6.5 is the reason mutate.mjs BLOCKS rather than warns. It is the
+# only gate that fails when the others have quietly stopped being meaningful,
+# and a warning nobody reads is exactly how a vacuous self-check survives.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+# A second push supersedes the first. Nothing here writes anywhere, so
+# cancelling a run in flight costs nothing but the minutes it saves.
+concurrency:
+  group: gates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        # NOT sparse and NOT filtered. mutate.mjs enumerates worker/*.mjs and
+        # also stages web/lib/pure.mjs, web/verify.mjs and fixtures/pii.json.
+        # A partial checkout removes a file it expects and the failure reports
+        # as "mutation test FAILED" rather than "file missing", which is a
+        # confusing way to learn the checkout was wrong.
+
+      - uses: actions/setup-node@v4
+        with:
+          # parseArgs and global fetch. Both workers assume a modern runtime.
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      # ---- gates that need nothing installed -----------------------------
+      # These three run first ON PURPOSE. They have zero npm dependencies, no
+      # database and no network, so they give a verdict before `npm ci` has
+      # spent a minute. If one of them is red, the install was wasted anyway.
+      #
+      # That they need nothing is a property worth protecting: if either
+      # verify.mjs ever starts needing a database or the `claude` binary, that
+      # is a defect in the test, not a reason to add a service container here.
+
+      - name: worker self-check
+        run: node verify.mjs
+        working-directory: worker
+
+      - name: web self-check
+        run: node verify.mjs
+        working-directory: web
+
+      - name: mutation test (CONTRACT §6.5)
+        run: node mutate.mjs
+        working-directory: worker
+        # Copies sources to a mkdtemp OUTSIDE the repo, breaks the §6.1 guard
+        # one mutant at a time, and requires the self-checks to notice. On a
+        # runner the temp dir is /tmp, comfortably outside the workspace.
+
+      # ---- gates that need the web dependencies --------------------------
+
+      - name: install web dependencies
+        run: npm ci
+        working-directory: web
+
+      - name: types
+        run: npx tsc --noEmit
+        working-directory: web
+
+      - name: build
+        run: npm run build
+        working-directory: web
+        # Deliberately no env. With DATABASE_URL absent the dashboard renders
+        # its no-database panel, which is a real code path a writer can hit,
+        # so building without one exercises it rather than dodging it.
