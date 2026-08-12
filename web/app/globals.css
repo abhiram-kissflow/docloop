@@ -193,6 +193,13 @@
     background: var(--bg);
   }
 
+  /* A scrollable pane that takes a tab stop must SHOW it. The global :focus-visible ring sits
+     outside the element and is clipped by the pane's own overflow, so it draws inset instead. */
+  .dl-pane:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: -2px;
+  }
+
   .dl-pane--queue {
     border-right: 1px solid var(--line);
   }
@@ -428,8 +435,19 @@
   .dl-nav-item:hover { background: var(--surface); color: var(--ink); }
   .dl-nav-item.is-active { color: var(--ink); font-weight: 500; background: var(--primary-tint); }
   /* A source with nothing pending stays visible, quieter. A nav whose items appear and disappear
-     teaches nobody what the system does. */
-  .dl-nav-item.is-empty { opacity: 0.55; }
+     teaches nobody what the system does.
+     "Quieter" is NOT dimmer. This was opacity: 0.55, which took --muted from 4.9:1 to roughly
+     2.7:1 and failed WCAG AA — and on the active-and-empty item it dimmed the selected tab too,
+     so the tab you were standing on was the least readable thing on screen. There is no fix by
+     value: --muted is already 4.9:1 on white, so anything meaningfully greyer than it fails.
+     Colour cannot carry this signal accessibly on this palette, so it does not carry it: the
+     count reads 0, which is the actual information, and the dotted rule marks the item without
+     touching text contrast. */
+  .dl-nav-item.is-empty {
+    text-decoration: underline dotted var(--line-strong);
+    text-underline-offset: 4px;
+  }
+  .dl-nav-item.is-empty.is-active { text-decoration: none; }
   .dl-nav-count { color: var(--muted); font-size: var(--t-meta); }
   .dl-nav-item.is-active .dl-nav-count { color: var(--primary); }
 

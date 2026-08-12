@@ -28,7 +28,16 @@ export default async function PatternsPage() {
         </Link>
       </Header>
 
-      <div className="dl-pane">
+      {/* tabIndex on the scrolling element, not decoration: this pane is the only thing that
+          scrolls on this route, and nothing inside it is focusable — the rows are text, not
+          controls. Without a tab stop a keyboard user could not reach anything below the fold
+          at all, which is the one finding here that locks somebody out rather than merely
+          reading badly. <main> also gives the page the landmark it never had. */}
+      <main
+        className="dl-pane"
+        tabIndex={0}
+        aria-label="Patterns by ticket count, ranked"
+      >
         <div className="dl-pane-head">
           <h1 className="text-xs font-semibold">Patterns by ticket count</h1>
           <span className="dl-mono text-muted">{patterns.length}</span>
@@ -99,7 +108,7 @@ export default async function PatternsPage() {
             ))}
           </ol>
         )}
-      </div>
+      </main>
     </div>
   );
 }

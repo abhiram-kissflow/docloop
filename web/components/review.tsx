@@ -273,11 +273,11 @@ export default function Review({
         <Header pending={null} lastRun={null}>
           {help}
         </Header>
-        <div className="dl-pane">
+        <main className="dl-pane" aria-label="Database error">
           <div className="dl-pane-body">
             <NoDatabase error={dbError} />
           </div>
-        </div>
+        </main>
         {helpOpen && <HelpOverlay onClose={() => setHelpOpen(false)} />}
       </div>
     );
@@ -292,11 +292,11 @@ export default function Review({
           </Link>
           {help}
         </Header>
-        <div className="dl-pane">
+        <main className="dl-pane" aria-label="Review queue">
           <div className="dl-pane-body">
             <QueueEmpty stats={stats} cleared={removed.length > 0} activeSource={activeSource} />
           </div>
-        </div>
+        </main>
         {helpOpen && <HelpOverlay onClose={() => setHelpOpen(false)} />}
       </div>
     );
@@ -311,7 +311,7 @@ export default function Review({
         {help}
       </Header>
 
-      <div className="dl-panes" data-view={view}>
+      <main className="dl-panes" data-view={view}>
         <section className="dl-pane dl-pane--queue" aria-label="Suggestion queue">
           <div className="dl-pane-head">
             <h2 className="text-xs font-semibold">Pending review</h2>
@@ -387,7 +387,7 @@ export default function Review({
             )}
           </div>
         </section>
-      </div>
+      </main>
 
       {helpOpen && <HelpOverlay onClose={() => setHelpOpen(false)} />}
     </div>
