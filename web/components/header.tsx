@@ -23,7 +23,11 @@ export default function Header({
 }) {
   return (
     <header className="dl-header">
-      <span className="dl-title">Docloop</span>
+      {/* The document heading. It was a <span>, and the only h1 on the page lived inside the
+          evidence pane — which is visibility:hidden in queue view below 900px. So a narrow
+          viewport rendered a page with NO heading at all, and axe only caught it once the audit
+          finally ran at 375px. A page's name does not depend on which pane is open. */}
+      <h1 className="dl-title">Docloop</h1>
 
       {pending !== null && (
         <>

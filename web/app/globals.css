@@ -155,10 +155,18 @@
   html {
     -webkit-text-size-adjust: 100%;
     height: 100%;
+    /* Below 900px the evidence pane is parked at translateX(100%) — off-screen to the right,
+       waiting to slide in. A transform does not shrink the scrollable area, so the document
+       became exactly TWICE the viewport wide and the whole app scrolled sideways. Measured at
+       375px: scrollWidth 750. Nobody saw it because every audit until now ran at 1440.
+       `clip`, never `hidden`: hidden on the root turns the page into a scroll container and
+       breaks position: sticky on the pane heads. */
+    overflow-x: clip;
   }
 
   body {
     height: 100%;
+    overflow-x: clip;
     background: var(--bg);
     color: var(--ink);
     font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;

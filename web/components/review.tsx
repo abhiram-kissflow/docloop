@@ -416,7 +416,7 @@ function Evidence({
   return (
     <article>
       <div className="dl-block">
-        <h1 className="dl-measure text-lg">{suggestionTitle(suggestion)}</h1>
+        <h2 className="dl-measure text-lg">{suggestionTitle(suggestion)}</h2>
         <p className="dl-mono text-muted mt-2">
           {suggestion.type}
           <span aria-hidden="true"> · </span>
@@ -554,9 +554,9 @@ function QueueEmpty({
 
   return (
     <section className="dl-prose">
-      <h1 className="text-md" ref={heading} tabIndex={-1}>
+      <h2 className="text-md" ref={heading} tabIndex={-1}>
         {elsewhere > 0 ? `Nothing pending from ${meta!.label}.` : 'The queue is empty.'}
-      </h1>
+      </h2>
       {elsewhere > 0 ? (
         <p className="text-muted mt-2">
           This filter is empty — the queue is not. {elsewhere} suggestion{elsewhere === 1 ? '' : 's'}{' '}
@@ -611,7 +611,7 @@ function Fact({ term, value }: { term: string; value: string }) {
 function NoDatabase({ error }: { error: string }) {
   return (
     <section className="dl-prose">
-      <h1 className="text-md">The database is unreachable.</h1>
+      <h2 className="text-md">The database is unreachable.</h2>
       <p className="mt-2">
         The dashboard is running, and the receiver endpoints still accept webhooks. It cannot read
         patterns, questionnaires, or the review queue until Postgres answers.

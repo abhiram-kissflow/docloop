@@ -39,7 +39,7 @@ export default async function PatternsPage() {
         aria-label="Patterns by ticket count, ranked"
       >
         <div className="dl-pane-head">
-          <h1 className="text-xs font-semibold">Patterns by ticket count</h1>
+          <h2 className="text-xs font-semibold">Patterns by ticket count</h2>
           <span className="dl-mono text-muted">{patterns.length}</span>
         </div>
 
