@@ -16,9 +16,30 @@ keystroke away. This is deliberately not a newsroom and not an analytics console
 honest analog to this screen is a diff review, and it should carry that posture: dense, calm,
 decision-shaped.
 
-**Color strategy:** Restrained. Neutrals carry the surface; the brand violet appears only on the
-selected row, the primary action, and focus. Status is carried by pale tinted fills with dark
-text, never by saturated blobs.
+**Color strategy:** Restrained on the surface, deliberate on the signal. Neutrals carry the page;
+the brand violet appears only on the selected row, the primary action, and focus. Status and
+provenance are carried by pale tinted fills with dark text, never by saturated blobs.
+
+**Source hues (revised).** Each of the four producers has its own hue on its badge. This reverses
+the original decision — that colour-coded producers turn the queue into a chart — on request, and
+it is safe for one reason: the badge KEEPS ITS WORD. "ticket", "code change", "release" and
+"what's new" read identically in greyscale and to a screen reader, so colour is redundant
+reinforcement and never the carrier. That is the condition under which colour-coding is allowed,
+and the rule it appears to break — status is never carried by colour ALONE — still holds.
+
+What it buys: a writer working two dozen mixed rows sees the run of nine code-change suggestions
+from a single push as a shape, before reading a word.
+
+```css
+--src-ticket-ink:    oklch(0.440 0.130 45);   --src-ticket-tint:   oklch(0.955 0.030 60);
+--src-code-ink:      oklch(0.440 0.130 240);  --src-code-tint:     oklch(0.955 0.030 240);
+--src-release-ink:   oklch(0.430 0.120 152);  --src-release-tint:  oklch(0.955 0.030 152);
+--src-whatsnew-ink:  oklch(0.440 0.130 330);  --src-whatsnew-tint: oklch(0.960 0.030 330);
+```
+
+Same recipe as every other pair here — ink at L 0.44 / C 0.13, tint at L 0.955 / C 0.03 — so all
+four land in the contrast band §Contrast floors already verified. None of them is the brand
+violet: violet stays reserved for selection and action, and a source badge is neither.
 
 ## Color
 

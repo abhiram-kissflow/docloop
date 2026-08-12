@@ -46,6 +46,20 @@
   --accent-ink:    oklch(0.440 0.130 45);     /* text on --accent-tint */
   --accent-tint:   oklch(0.955 0.030 60);
 
+  /* Source hues — one per producer, same recipe as every other tint/ink pair in this file:
+     ink at L 0.44 / C 0.13, tint at L 0.955 / C 0.03, so all four land in the same contrast band
+     as --accent-ink on --accent-tint, which DESIGN.md §Contrast floors already verified.
+     Four hues, evenly spaced, none of them the brand violet — violet stays reserved for selection
+     and action, and a source badge is neither. */
+  --src-ticket-ink:    oklch(0.440 0.130 45);    /* warm — tickets, the human-demand side */
+  --src-ticket-tint:   oklch(0.955 0.030 60);
+  --src-code-ink:      oklch(0.440 0.130 240);   /* cool — code changes, the machine side */
+  --src-code-tint:     oklch(0.955 0.030 240);
+  --src-release-ink:   oklch(0.430 0.120 152);   /* green — a release shipped */
+  --src-release-tint:  oklch(0.955 0.030 152);
+  --src-whatsnew-ink:  oklch(0.440 0.130 330);   /* magenta — the one row that gets published */
+  --src-whatsnew-tint: oklch(0.960 0.030 330);
+
   /* Semantic state */
   --ok-ink:        oklch(0.420 0.110 152);
   --ok-tint:       oklch(0.955 0.030 152);
@@ -494,16 +508,20 @@
   }
   .dl-pill--pending   { background: var(--accent-tint); color: var(--accent-ink); }
 
-  /* Source badge. Deliberately NOT four saturated colours: four producers colour-coded turns the
-     queue into a chart, and DESIGN.md bans status carried by colour alone. It is a quiet neutral
-     chip carrying a WORD — the word is the information. Only 'what's new' is tinted, because a
-     drafted changelog entry is the one row a reviewer treats differently from a proposal. */
-  .dl-pill--src {
-    background: var(--surface);
-    color: var(--muted);
-    border: 1px solid var(--line);
-  }
-  .dl-src-whatsnew { background: var(--accent-tint); color: var(--accent-ink); border-color: transparent; }
+  /* Source badge — one hue per producer.
+     This reverses an earlier deliberate choice, on purpose and on request. The original argument
+     was that four colour-coded producers turn the queue into a chart, and that status must never
+     be carried by colour alone. The second half of that still binds and is why this is safe: the
+     badge KEEPS ITS WORD. "ticket", "code change", "release", "what's new" are readable with the
+     colour removed, in greyscale, and by a screen reader. Colour is redundant reinforcement here,
+     never the carrier — which is exactly the condition under which colour-coding is allowed.
+     What it buys: a writer working 24 mixed rows finds the run of nine code-change suggestions
+     from one push by shape, before reading a word. That was the actual complaint. */
+  .dl-pill--src { border: 1px solid transparent; }
+  .dl-src-mining    { background: var(--src-ticket-tint);   color: var(--src-ticket-ink); }
+  .dl-src-staleness { background: var(--src-code-tint);     color: var(--src-code-ink); }
+  .dl-src-release   { background: var(--src-release-tint);  color: var(--src-release-ink); }
+  .dl-src-whatsnew  { background: var(--src-whatsnew-tint); color: var(--src-whatsnew-ink); }
   .dl-pill--approved  { background: var(--ok-tint);     color: var(--ok-ink); }
   .dl-pill--dismissed { background: var(--surface);     color: var(--muted); }
 
