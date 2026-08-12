@@ -44,7 +44,9 @@ export async function POST(req: Request) {
   try {
     const id = await insertEvent('generic', type, payload);
 
-    let job: string | null = null;
+    // `jobs` is an array to match /api/hooks/github, which raises two jobs from one release. One
+    // event yielding several jobs is the normal case now, so both webhooks answer the same shape.
+    const jobs: string[] = [];
     if (isFeatureFlagLaunch(payload)) {
       const r = await q<{ id: string }>(
         `insert into jobs (kind, payload) values ('whatsnew', $1::jsonb) returning id`,
@@ -59,10 +61,10 @@ export async function POST(req: Request) {
           }),
         ],
       );
-      job = r.rows[0].id;
+      jobs.push(r.rows[0].id);
     }
 
-    return json({ ok: true, id, job });
+    return json({ ok: true, id, jobs });
   } catch {
     return json({ error: 'storage failed' }, 500);
   }

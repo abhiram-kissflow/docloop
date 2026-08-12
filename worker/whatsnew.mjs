@@ -256,11 +256,27 @@ async function main() {
     return;
   }
 
+  // Everything past the claim is wrapped: a job that has been claimed is `running`, and nothing
+  // reaps it. A throw here — an unparseable draft, a dead API, a missing binary — used to leave
+  // the row claimed forever, invisible, and the next run would skip straight past it. Reporting
+  // the failure is what makes the queue self-describing.
+  try {
+    await draft(job, auth, flags);
+  } catch (err) {
+    await report(job, auth, 'failed', { error: err.message }).catch(() => {});
+    throw err;
+  }
+}
+
+async function draft(job, auth, flags) {
   const feature = featureFromJob(job.payload || {});
-  if (!feature.name && !feature.notes) {
-    // Nothing to write from. Fail the job loudly rather than draft from an empty prompt, which
-    // produces a confident entry about nothing.
-    await report(job, auth, 'failed', { error: 'event carried no name and no notes' });
+
+  // A name alone is not something to announce. `grid_inline_edit` with no description cannot
+  // become 70-100 words without inventing them, which is the one thing the prompt forbids — so
+  // refuse here rather than spend a model call discovering it. A release with no notes is the
+  // same case: the tag is not the story.
+  if (!feature.notes) {
+    await report(job, auth, 'failed', { error: 'event carried no release notes or description' });
     console.error('[whatsnew] job carried nothing to write from — failed it');
     return;
   }
