@@ -45,10 +45,10 @@ export async function POST(req: Request) {
       // `unresolved` is returned so a mapping that has gone stale is visible rather than silent —
       // a suggestion that quietly loses its article still looks fine on the dashboard.
       const r = await client.query<{ article_id: string | null }>(
-        `insert into suggestions (type, pattern_id, article_id, body, status)
-         values ($1, null, (select id from articles where external_id = $2), $3, 'pending')
+        `insert into suggestions (type, pattern_id, article_id, body, status, source)
+         values ($1, null, (select id from articles where external_id = $2), $3, 'pending', $4)
          returning article_id`,
-        [s.type, s.article_external_id, s.body],
+        [s.type, s.article_external_id, s.body, s.source],
       );
       created++;
       if (s.article_external_id !== null && r.rows[0].article_id === null) unresolved++;

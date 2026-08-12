@@ -130,7 +130,7 @@ export function extractJson(text, depth = 0) {
     if (envelope.is_error === true) {
       throw new Error('claude reported is_error: true — the run failed, so nothing is ingested');
     }
-    if ('patterns' in envelope) return envelope;
+    if (isPayload(envelope)) return envelope;
     if (depth < 4) {
       if (typeof envelope.result === 'string') return extractJson(envelope.result, depth + 1);
       if (envelope.result && typeof envelope.result === 'object') return envelope.result;
@@ -181,15 +181,26 @@ function parsedCandidates(text) {
 // to hand us the DECOY, because the first parseable object won. That failed closed — the decoy
 // has no usable patterns — but it burned a whole 6-hour cycle. Prefer, in order: the LAST object
 // whose `patterns` is an array; else the LAST plain object; else the last value of any kind.
+// The top-level keys a Docloop payload can carry. extractJson was written for workstream A and
+// recognised only `patterns`, so when workstream C started returning `suggestions` the wrapper was
+// not recognised as a payload: the envelope unwrapped, the candidate scan ran over the inner
+// objects, and a SINGLE suggestion came back instead of the list. Zero suggestions, no error.
+// Any new payload shape must be added here — the alternative is each caller re-implementing the
+// unwrap, which is how the modelUsage bug happened in the first place.
+export const PAYLOAD_KEYS = ['patterns', 'suggestions', 'identity_findings'];
+
+const isPayload = (o) =>
+  Boolean(o) && typeof o === 'object' && !Array.isArray(o) && PAYLOAD_KEYS.some((k) => Array.isArray(o[k]));
+
 function pickCandidate(candidates) {
-  let withPatterns, plainObject, any;
+  let payload, plainObject, any;
   for (const c of candidates) {
     any = c;
     if (Array.isArray(c)) continue;
     plainObject = c;
-    if (Array.isArray(c.patterns)) withPatterns = c;
+    if (isPayload(c)) payload = c;
   }
-  return withPatterns ?? plainObject ?? any;
+  return payload ?? plainObject ?? any;
 }
 
 function* jsonCandidates(text) {
@@ -667,7 +678,7 @@ function claudeFailure(err) {
   return 'no detail (content withheld per CONTRACT §6.4)';
 }
 
-async function runClaude(bin, prompt) {
+export async function runClaude(bin, prompt) {
   const extra = (process.env.CLAUDE_EXTRA_ARGS || '').split(' ').filter(Boolean);
   const opts = { timeout: CLAUDE_TIMEOUT_MS, maxBuffer: CLAUDE_MAXBUFFER };
   try {

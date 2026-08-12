@@ -80,6 +80,28 @@ export async function POST(req: Request) {
       }
     }
 
+    // Workstream C: a published release is the signal that something user-visible shipped.
+    // `released` is deliberately excluded — GitHub fires both for the same release, and acting on
+    // each would raise every documentation proposal twice.
+    if (type === 'release' && (payload as any)?.action === 'published') {
+      const p = payload as any;
+      const r = await q<{ id: string }>(
+        `insert into jobs (kind, payload) values ('newdoc', $1::jsonb) returning id`,
+        [
+          JSON.stringify({
+            repo: p?.repository?.full_name ?? null,
+            tag: p?.release?.tag_name ?? null,
+            name: p?.release?.name ?? null,
+            // Truncated here rather than in the worker: this is model-prompt input, and §6.6 says
+            // bound it at the boundary where it arrives.
+            body: typeof p?.release?.body === 'string' ? p.release.body.slice(0, 20000) : '',
+            url: p?.release?.html_url ?? null,
+          }),
+        ],
+      );
+      job = r.rows[0].id;
+    }
+
     return json({ ok: true, id, job });
   } catch {
     return json({ error: 'storage failed' }, 500);

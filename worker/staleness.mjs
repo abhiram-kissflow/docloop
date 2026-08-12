@@ -21,6 +21,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
+import { api, requireEnv, claimJob } from './api.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PATH_AREAS = path.join(HERE, '..', 'fixtures', 'path-areas.json');
@@ -136,22 +137,6 @@ export function buildBody({ area, files, repo, commits }, sampleLimit = 8) {
 
 // ---------------------------------------------------------------- io
 
-async function api(pathname, apiUrl, apiKey, init = {}) {
-  const res = await fetch(`${apiUrl}${pathname}`, {
-    ...init,
-    headers: { authorization: `Bearer ${apiKey}`, ...(init.body ? { 'content-type': 'application/json' } : {}), ...(init.headers || {}) },
-  });
-  const text = await res.text();
-  let body;
-  try {
-    body = JSON.parse(text);
-  } catch {
-    body = { error: `non-JSON response (${text.length} chars)` };
-  }
-  if (!res.ok) throw new Error(`${pathname} -> HTTP ${res.status}: ${body.error || 'unknown'}`);
-  return body;
-}
-
 async function main() {
   const flags = parseFlags();
   if (flags.help) {
@@ -159,28 +144,13 @@ async function main() {
     return;
   }
 
-  const apiUrl = (process.env.DOCLOOP_API_URL || '').replace(/\/+$/, '');
-  const apiKey = process.env.WORKER_API_KEY || '';
-  if (!apiUrl || !apiKey) {
-    throw new Error('missing env: DOCLOOP_API_URL and WORKER_API_KEY are both required (see README)');
-  }
+  const auth = requireEnv();
 
   const prefixes = JSON.parse(fs.readFileSync(PATH_AREAS, 'utf8')).prefixes;
 
-  const { jobs } = await api('/api/jobs?limit=1', apiUrl, apiKey);
-  const job = jobs?.[0];
+  const job = await claimJob('staleness', auth);
   if (!job) {
-    console.error('[staleness] no pending jobs');
-    return;
-  }
-  if (job.kind !== 'staleness') {
-    // Claimed something that is not ours. Hand it back as failed rather than silently dropping it:
-    // a job stuck in `running` forever is worse than one visibly failed.
-    await api('/api/results', apiUrl, apiKey, {
-      method: 'POST',
-      body: JSON.stringify({ job_id: Number(job.id), status: 'failed', result: { error: `not a staleness job: ${job.kind}` } }),
-    });
-    console.error(`[staleness] claimed a ${job.kind} job by mistake — returned it as failed`);
+    console.error('[staleness] no pending staleness job');
     return;
   }
 
@@ -192,7 +162,7 @@ async function main() {
       `${ranked.length} area(s), ${unmapped} file(s) mapped to no area`
   );
 
-  const { articles = [] } = await api('/api/articles', apiUrl, apiKey);
+  const { articles = [] } = await api('/api/articles', auth);
   const picks = pickArticles(ranked, articles, flags.max);
 
   const suggestions = picks.map(({ article, area, files: hits }) => ({
@@ -211,13 +181,13 @@ async function main() {
   let created = 0;
   let unresolved = 0;
   if (suggestions.length) {
-    const r = await api('/api/suggestions', apiUrl, apiKey, { method: 'POST', body: JSON.stringify({ suggestions }) });
+    const r = await api('/api/suggestions', auth, { method: 'POST', body: JSON.stringify({ suggestions }) });
     created = r.created;
     unresolved = r.unresolved;
   }
   console.error(`[staleness] raised ${created} suggestion(s)${unresolved ? `, ${unresolved} with an unresolved article link` : ''}`);
 
-  await api('/api/results', apiUrl, apiKey, {
+  await api('/api/results', auth, {
     method: 'POST',
     body: JSON.stringify({
       job_id: Number(job.id),

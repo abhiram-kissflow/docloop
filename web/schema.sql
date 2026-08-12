@@ -39,6 +39,10 @@ create table if not exists suggestions (
   body       text not null,
   status     text not null default 'pending'
              check (status in ('pending','approved','dismissed')),
+  -- Where this came from: which workstream raised it. The queue mixes ticket-mined suggestions
+  -- with code-change and release-driven ones, and a reviewer judges them differently — "12 tickets
+  -- ask this" is a different claim from "a push touched code this documents".
+  source     text not null default 'mining',
   created_at timestamptz not null default now()
 );
 

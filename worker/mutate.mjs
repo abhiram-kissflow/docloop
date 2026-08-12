@@ -16,7 +16,7 @@
 // the mutation is applied to the COPY, and the UNMODIFIED verify.mjs runs against it.
 
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
@@ -24,15 +24,18 @@ import path from 'node:path';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '..');
 
-// Everything the two self-checks need to run standalone. Zero npm deps on either side, so a
-// flat copy of these five files is a complete, runnable tree.
+// Everything the two self-checks need to run standalone. Zero npm deps on either side, so a flat
+// copy is a complete, runnable tree.
+//
+// EVERY worker module is staged, not an explicit list. The list bit twice: verify.mjs grew an
+// import (staleness.mjs, then newdoc.mjs + api.mjs) and the baseline failed on a clean copy, which
+// reports as "mutation test FAILED" — a genuinely confusing way to learn a file is missing. A
+// worker module that verify.mjs does not import costs one file copy; a missing one costs a
+// misleading red build. Enumerate the directory instead of remembering to update a list.
 const SOURCES = [
-  'worker/index.mjs',
-  'worker/verify.mjs',
-  // verify.mjs imports the B1 pure helpers from here. Not a mutation target itself — it holds no
-  // §6.1 rule — but the baseline cannot run without it, and a broken baseline reports as a failed
-  // mutation test, which is a confusing way to learn you forgot a file.
-  'worker/staleness.mjs',
+  ...readdirSync(path.join(REPO, 'worker'))
+    .filter((f) => f.endsWith('.mjs'))
+    .map((f) => `worker/${f}`),
   'web/lib/pure.mjs',
   'web/verify.mjs',
   'fixtures/pii.json',
