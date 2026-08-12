@@ -69,13 +69,20 @@ jobs:
         run: npm ci
         working-directory: web
 
-      - name: types
-        run: npx tsc --noEmit
-        working-directory: web
-
       - name: build
         run: npm run build
         working-directory: web
         # Deliberately no env. With DATABASE_URL absent the dashboard renders
         # its no-database panel, which is a real code path a writer can hit,
         # so building without one exercises it rather than dodging it.
+
+      - name: types
+        run: npx tsc --noEmit
+        working-directory: web
+        # AFTER the build, not before. Next generates .next/types during a
+        # build, and tsconfig includes them, so on a clean checkout tsc fails
+        # with "Cannot find name 'LayoutProps'" — types that exist only as
+        # build output. Locally it passes either way because .next is already
+        # there from the last build, which is exactly the kind of green that
+        # only holds on the machine that has built before. The first CI run
+        # caught it; that is the whole reason this file exists.
