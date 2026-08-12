@@ -20,7 +20,12 @@ import os from 'node:os';
 
 const execFileAsync = promisify(execFile);
 
-const CLAUDE_TIMEOUT_MS = 10 * 60 * 1000; // mining a month of tickets is slow
+// Mining a month of tickets is slow, and grounding made it slower: the model now checks each
+// cluster against a 188-article index before choosing update-vs-create. An ungrounded run took
+// ~4 min; the first grounded one hit the old 10-min ceiling and was killed mid-flight, then
+// restarted from zero on the plain-text retry — paying twice for work that was nearly done.
+// Overridable so a bigger doc set or a longer window does not need a code change.
+const CLAUDE_TIMEOUT_MS = Number(process.env.CLAUDE_TIMEOUT_MS) || 30 * 60 * 1000;
 const CLAUDE_MAXBUFFER = 64 * 1024 * 1024;
 
 // ---------------------------------------------------------------- flags

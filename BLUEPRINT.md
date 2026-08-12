@@ -426,6 +426,43 @@ things a human already approved.
 | **Worker is a single point of failure on one Mac** | If the laptop is asleep, closed or reimaged, nothing runs — and the Playwright and media work genuinely cannot move to Vercel. | Blast radius contained: Vercel keeps receiving and storing webhooks regardless, so no signal is lost, the queue just drains later. Jobs are claimed atomically and re-runnable, and `index.mjs` runs one cycle and exits, so a crash is never a stuck daemon. Upgrade path: a persistent Mac with the same toolchain — the HTTP contract does not change. |
 | **Index rot** | The doc↔code mapping is the keystone; if it silently goes wrong, every workstream produces confident nonsense. | Seed once with human review, re-check mappings whenever the graph is refreshed, and treat an article whose mapped nodes vanished from the graph as a signal in itself. |
 
+### 10.0 The article↔code mapping is unsolved, and it gates B1
+
+The index now knows **which** articles exist — 188 of them across community help, developer docs and
+the API reference. It does not know **what code** most of them are about, and B1 cannot run without
+that: a push touches files, and something has to turn files into affected articles.
+
+105 of 188 carry real feature tags, and only because the API reference is an OpenAPI document whose
+operations are already tagged by product area. The remaining 83 community and developer articles
+have nothing.
+
+**What was tried and failed.** The merged cross-repo graph has 59,934 nodes, each carrying a
+`source_file` and a Louvain `community` id — 825 communities, 396 of them large enough to matter.
+Naming each community by its most distinctive path terms and matching those against article titles
+produced 30 mappings, of which 28 were the same two meaningless labels: an article titled
+*"Form › Table › Row › Tojson"* mapped to `serializer-scrollabletab-navigation`.
+
+**Why.** Code identifiers and documentation titles do not share vocabulary. Docs are written in the
+user's language (*approval step*, *audit log*, *Twilio connector*); code is written in the
+implementer's (*serializer*, *treebuilder*, *readonlygrid*). Term overlap cannot cross that gap. It
+is the same failure recorded in CONTRACT §6.1 — matching shape when the category is semantic — and
+it should be recognised on sight rather than rediscovered.
+
+**What would actually work**, in increasing cost:
+
+1. **A curated product taxonomy.** Fifteen to twenty area names a documentation lead would
+   recognise (*forms, workflow, approvals, integrations, reports, access control…*), mapped once by
+   hand to graph communities, then to articles. A small closed vocabulary is exactly the shape
+   §6.1 says to prefer. The API's six OpenAPI tags are a start but cover only a fraction.
+2. **LLM-assisted mapping.** Hand a model each community's vocabulary alongside the article titles
+   and ask for the mapping. It crosses the semantic gap that regex and term overlap cannot, at the
+   cost of one bounded run and a review pass.
+3. **Embeddings.** Highest fidelity, an extra dependency, and hardest to explain when it is wrong.
+
+Recommended: (1) then (2) — curate the taxonomy, let a model do the per-article assignment, have a
+writer review the result. Until one of these exists, B1 remains designed rather than buildable, and
+any claim that a code change affects a particular article is a guess.
+
 ### 10.1 PII: what the guard does and does not do
 
 This subsection exists because the PII mitigation above is the one place in Docloop where the

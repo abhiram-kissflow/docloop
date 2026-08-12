@@ -1,0 +1,34 @@
+{
+  "_about": [
+    "The product areas Docloop maps documentation and code onto. This is the closed vocabulary",
+    "BLUEPRINT §10.0 calls for: both sides of the doc<->code index are assigned into THIS list,",
+    "which is what lets a code change find the articles it affects.",
+    "",
+    "It is deliberately hand-written and deliberately small. An earlier attempt derived area names",
+    "automatically from code identifiers and produced things like 'serializer-scrollabletab-",
+    "navigation' — meaningless to a writer and useless for matching, because docs are written in",
+    "the user's language and code in the implementer's. A closed vocabulary a documentation lead",
+    "recognises is the whole mechanism; if a name here would puzzle one of your writers, it is the",
+    "wrong name.",
+    "",
+    "EDIT THIS FILE BY HAND. Add an area when a real body of docs has nowhere to sit; merge two",
+    "when nothing ever distinguishes them. Then re-run scripts/map-areas.mjs to reassign.",
+    "Slugs are stable identifiers — renaming one orphans every mapping that used it."
+  ],
+  "areas": [
+    { "slug": "forms-fields", "name": "Forms and fields", "hint": "form builder, field types, tables, repeaters, validation, layout" },
+    { "slug": "process-workflow", "name": "Process and workflow", "hint": "steps, routing, conditions, approvals, reassignment, send-back, run history" },
+    { "slug": "boards-cases", "name": "Boards and cases", "hint": "kanban boards, case management, unstructured work" },
+    { "slug": "datasets", "name": "Datasets and dataforms", "hint": "datasets, dataforms, dataform views, lookups, master data" },
+    { "slug": "reports-analytics", "name": "Reports and analytics", "hint": "reports, dashboards, charts, exports, scheduled delivery" },
+    { "slug": "integrations", "name": "Integrations and connectors", "hint": "connectors, webhooks, external API automation, SOAP/REST, Twilio, HubSpot" },
+    { "slug": "notifications", "name": "Notifications", "hint": "in-app and email notifications, notification settings, email actions" },
+    { "slug": "access-governance", "name": "Access, roles and governance", "hint": "roles, permissions, groups, user governance, account security, SSO" },
+    { "slug": "portals", "name": "Portals", "hint": "external portals, portal users, portal administration" },
+    { "slug": "pages-ui", "name": "Pages and UI components", "hint": "pages, components, popups, iframes, images, labels, styling, views" },
+    { "slug": "expressions", "name": "Expressions and formulas", "hint": "formulas, date and user expressions, conditional functions" },
+    { "slug": "developer-sdk", "name": "Developer SDK and scripting", "hint": "JS SDK, context, utils, get/set variable, toJSON, custom code" },
+    { "slug": "api-platform", "name": "API and platform", "hint": "REST API, authentication, access keys, rate limits, API versioning" },
+    { "slug": "admin-environments", "name": "Administration and environments", "hint": "account settings, app environments, deployment, format and locale settings" }
+  ]
+}
