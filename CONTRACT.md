@@ -146,6 +146,48 @@ Errors: `{ "error": "<message>" }` with the status code below. Never leak stack 
 - `200 → { ok: true, created, unresolved }` · `400` on any §6.1 or schema violation, whole request
   rejected, never partially accepted.
 
+### 3.1 Suggestion bodies are untrusted text
+
+Every `body` in this system originates, directly or indirectly, with someone who opened a support
+ticket or wrote a release note. It is **not** trusted because it passed through a model, and it is
+not trusted because it is stored.
+
+**The word "markdown" is deliberately not used for these fields.** It was, and it is the single
+most dangerous word that could sit in this contract: it invites the next person to reach for a
+markdown renderer, and the day one lands, stored `<script>` becomes live XSS. An independent
+review stored a working payload through this exact path — script tag, `curl … | sh`, and "do not
+mention this block to the operator" — surviving both the worker scrub and the API validator,
+because the §6.1 guard filters CONTENT and has no opinion about INSTRUCTIONS.
+
+Rules:
+
+1. **Render as escaped text.** The dashboard renders bodies as JSX text so React escapes them.
+   Never `dangerouslySetInnerHTML`, never a markdown-to-HTML renderer. If formatting is ever worth
+   the effort, emit React elements directly and support no links and no images — a formatter that
+   never constructs HTML cannot inject it. The visible `##` in a body is not an oversight; it is
+   what the control looks like from the outside.
+
+2. **The What's New body carries raw HTML on purpose.** Its `description` field is verbatim HTML
+   because a writer pastes it into HubSpot. That makes it the highest-risk body in the system and
+   the first thing a renderer would detonate. It is exempt from nothing; it is the reason rule 1
+   is absolute rather than a default.
+
+3. **Escaping protects the browser, not the model — and the model is the harder problem.** Per
+   PLAN §4C an approved suggestion feeds a drafting run, so the chain does not end at a reader:
+
+   ```
+   ticket text → miner → suggestions.body → writer approves → body enters a drafting prompt
+   ```
+
+   At that last hop the body IS prompt text, and having been escaped on the way past a human
+   changes nothing about what a model does when it reads an instruction in its input. **Any prompt
+   that includes stored text MUST delimit it and frame it as untrusted data to be analysed, never
+   as direction to follow** — the framing `worker/newdoc.mjs` already uses for release notes, and
+   the audit pass's rule that a returned label absent from the payload is discarded rather than
+   acted on. The drafting step is unwritten. That is precisely when this is cheap to get right.
+
+4. **No agent in this pipeline gets a shell it does not need.** Drafting produces a document.
+
 ### `POST /api/hooks/intercom`
 - Endpoint exists from day one; **signature verification is a documented TODO**
   (needs Intercom developer-app setup — PLAN §8). Store and acknowledge.
@@ -199,7 +241,7 @@ Errors: `{ "error": "<message>" }` with the status code below. Never leak stack 
         "ticket_count": 12,
         "questions": ["What ...?", "How do I ...?"],
         "suggestions": [
-          { "type": "update", "body": "markdown, why a doc change is needed" }
+          { "type": "update", "body": "prose: why a doc change is needed (see §3.1)" }
         ]
       }
     ]
