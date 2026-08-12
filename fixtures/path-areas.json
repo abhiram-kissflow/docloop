@@ -6,268 +6,288 @@
     "resolve. Hand edits are welcome and are the intended way to fix a wrong label."
   ],
   "prefixes": {
-    "account/common/src/helpers/color": {
+    "account": {
       "area": "forms-fields",
-      "votes": 15,
+      "votes": 1336,
       "share": 0.6
     },
-    "account/common/src/helpers/components": {
-      "area": "datasets",
-      "votes": 7,
-      "share": 0.78
-    },
-    "account/pwa/src/portal_profile": {
+    "account/common/src/helpers/color": {
       "area": "pages-ui",
       "votes": 10,
-      "share": 0.63
+      "share": 1
+    },
+    "account/pwa/src": {
+      "area": "forms-fields",
+      "votes": 90,
+      "share": 0.75
     },
     "account/pwa/src/portal_profile/preference": {
-      "area": "admin-environments",
+      "area": "pages-ui",
       "votes": 6,
       "share": 1
+    },
+    "account/pwa/src/profile": {
+      "area": "pages-ui",
+      "votes": 15,
+      "share": 0.63
     },
     "account/pwa/src/profile/delegation": {
-      "area": "access-governance",
+      "area": "forms-fields",
       "votes": 6,
       "share": 1
     },
-    "account/pwa/src/profile/preference": {
-      "area": "admin-environments",
-      "votes": 6,
-      "share": 1
-    },
-    "account/pwa/src/utils": {
+    "account/web/src/admin": {
       "area": "forms-fields",
-      "votes": 10,
-      "share": 0.67
-    },
-    "account/web/src/admin/pages": {
-      "area": "forms-fields",
-      "votes": 170,
+      "votes": 422,
       "share": 0.68
     },
     "account/web/src/components": {
       "area": "pages-ui",
-      "votes": 17,
-      "share": 0.63
+      "votes": 19,
+      "share": 0.73
     },
     "account/web/src/environments": {
-      "area": "forms-fields",
-      "votes": 27,
-      "share": 0.79
+      "area": "developer-sdk",
+      "votes": 20,
+      "share": 0.65
     },
-    "account/web/src/governance": {
+    "account/web/src/governance/components": {
       "area": "forms-fields",
-      "votes": 241,
+      "votes": 53,
       "share": 0.68
     },
-    "account/web/src/mysettings/pages": {
-      "area": "pages-ui",
-      "votes": 8,
-      "share": 0.89
+    "account/web/src/governance/icons": {
+      "area": "process-workflow",
+      "votes": 33,
+      "share": 0.92
     },
-    "account/web/src/portal_mysettings": {
-      "area": "pages-ui",
-      "votes": 15,
-      "share": 0.79
+    "account/web/src/governance/pages": {
+      "area": "forms-fields",
+      "votes": 146,
+      "share": 0.66
     },
-    "analytics/common/src/components": {
+    "account/web/src/governance/service": {
       "area": "forms-fields",
       "votes": 8,
-      "share": 0.67
+      "share": 1
     },
-    "analytics/pwa/src": {
+    "account/web/src/governance/utils": {
       "area": "forms-fields",
-      "votes": 17,
-      "share": 0.77
-    },
-    "analytics/web/src/apps/reports": {
-      "area": "expressions",
-      "votes": 10,
-      "share": 0.67
-    },
-    "analytics/web/src/constants": {
-      "area": "pages-ui",
       "votes": 9,
       "share": 0.69
     },
-    "analytics/web/src/datasource": {
+    "account/web/src/login": {
       "area": "forms-fields",
-      "votes": 18,
-      "share": 0.64
+      "votes": 31,
+      "share": 0.78
     },
-    "analytics/web/src/datasource/datasource_view": {
-      "area": "expressions",
+    "account/web/src/mysettings/pages": {
+      "area": "reports-analytics",
       "votes": 9,
-      "share": 0.82
+      "share": 1
     },
-    "analytics/web/src/queryeditor": {
-      "area": "forms-fields",
-      "votes": 57,
+    "account/web/src/portal": {
+      "area": "pages-ui",
+      "votes": 31,
+      "share": 0.69
+    },
+    "account/web/src/portal_mysettings": {
+      "area": "reports-analytics",
+      "votes": 13,
       "share": 0.68
     },
-    "analytics/web/src/reports/create": {
+    "account/web/src/portal/pages": {
       "area": "forms-fields",
-      "votes": 15,
-      "share": 1
+      "votes": 9,
+      "share": 0.6
     },
-    "analytics/web/src/reports/report_view": {
-      "area": "expressions",
-      "votes": 30,
-      "share": 0.94
-    },
-    "analytics/web/src/reports/share": {
+    "analytics": {
       "area": "forms-fields",
-      "votes": 7,
-      "share": 1
-    },
-    "analytics/web/src/scheduled_reports": {
-      "area": "forms-fields",
-      "votes": 70,
+      "votes": 445,
       "share": 0.62
     },
+    "analytics/web/src": {
+      "area": "forms-fields",
+      "votes": 254,
+      "share": 0.6
+    },
+    "analytics/web/src/queryeditor": {
+      "area": "access-governance",
+      "votes": 57,
+      "share": 0.75
+    },
+    "analytics/web/src/scheduled_reports/activity_log": {
+      "area": "reports-analytics",
+      "votes": 26,
+      "share": 1
+    },
+    "analytics/web/src/scheduled_reports/list": {
+      "area": "forms-fields",
+      "votes": 15,
+      "share": 0.75
+    },
+    "analytics/web/src/scheduled_reports/shared": {
+      "area": "pages-ui",
+      "votes": 12,
+      "share": 0.8
+    },
     "analytics/web/src/scheduled_reports/toolbar": {
-      "area": "notifications",
-      "votes": 6,
-      "share": 0.86
-    },
-    "analytics/web/src/shared": {
       "area": "forms-fields",
-      "votes": 21,
-      "share": 0.84
-    },
-    "analytics/web/src/types": {
-      "area": "portals",
-      "votes": 11,
-      "share": 0.61
-    },
-    "analytics/web/src/utils": {
-      "area": "forms-fields",
-      "votes": 6,
+      "votes": 7,
       "share": 1
     },
     "application/common": {
       "area": "forms-fields",
       "votes": 104,
-      "share": 0.65
+      "share": 0.73
     },
-    "application/pwa/src/runtime": {
-      "area": "admin-environments",
-      "votes": 10,
+    "application/pwa/src": {
+      "area": "forms-fields",
+      "votes": 51,
+      "share": 0.77
+    },
+    "application/pwa/src/components": {
+      "area": "process-workflow",
+      "votes": 12,
       "share": 1
     },
-    "application/pwa/src/service": {
-      "area": "pages-ui",
-      "votes": 15,
-      "share": 0.63
+    "application/web/src/admin": {
+      "area": "forms-fields",
+      "votes": 57,
+      "share": 0.77
     },
-    "application/web/src/admin/governance": {
-      "area": "portals",
-      "votes": 46,
-      "share": 0.63
+    "application/web/src/builder/analytics": {
+      "area": "forms-fields",
+      "votes": 31,
+      "share": 1
+    },
+    "application/web/src/builder/app_tabs": {
+      "area": "forms-fields",
+      "votes": 9,
+      "share": 1
     },
     "application/web/src/builder/artifact_quickaction": {
-      "area": "reports-analytics",
-      "votes": 13,
-      "share": 0.87
-    },
-    "application/web/src/builder/case": {
       "area": "forms-fields",
-      "votes": 56,
-      "share": 0.71
+      "votes": 14,
+      "share": 0.93
     },
     "application/web/src/builder/chat": {
       "area": "forms-fields",
-      "votes": 62,
-      "share": 0.73
+      "votes": 67,
+      "share": 0.8
+    },
+    "application/web/src/builder/components": {
+      "area": "forms-fields",
+      "votes": 91,
+      "share": 0.81
+    },
+    "application/web/src/builder/contextmenu": {
+      "area": "forms-fields",
+      "votes": 11,
+      "share": 1
+    },
+    "application/web/src/builder/custom_components": {
+      "area": "forms-fields",
+      "votes": 181,
+      "share": 0.66
+    },
+    "application/web/src/builder/decision_table": {
+      "area": "forms-fields",
+      "votes": 30,
+      "share": 0.94
+    },
+    "application/web/src/builder/externaldata": {
+      "area": "forms-fields",
+      "votes": 20,
+      "share": 1
+    },
+    "application/web/src/builder/forms": {
+      "area": "forms-fields",
+      "votes": 54,
+      "share": 0.78
     },
     "application/web/src/builder/list": {
       "area": "forms-fields",
-      "votes": 6,
-      "share": 0.86
+      "votes": 7,
+      "share": 1
     },
-    "application/web/src/builder/model_viewer": {
+    "application/web/src/builder/page": {
       "area": "forms-fields",
-      "votes": 67,
-      "share": 0.66
-    },
-    "application/web/src/builder/notification_settings": {
-      "area": "expressions",
-      "votes": 12,
+      "votes": 33,
       "share": 0.75
     },
     "application/web/src/builder/process": {
       "area": "forms-fields",
-      "votes": 67,
-      "share": 0.94
+      "votes": 45,
+      "share": 0.8
     },
-    "application/web/src/builder/service": {
+    "application/web/src/builder/reports": {
       "area": "forms-fields",
-      "votes": 20,
-      "share": 0.67
-    },
-    "application/web/src/builder/settings": {
-      "area": "forms-fields",
-      "votes": 77,
-      "share": 0.71
+      "votes": 24,
+      "share": 1
     },
     "application/web/src/builder/theme_builder": {
       "area": "forms-fields",
       "votes": 7,
       "share": 1
     },
-    "application/web/src/builder/variables": {
-      "area": "pages-ui",
+    "application/web/src/builder/utils": {
+      "area": "forms-fields",
       "votes": 9,
       "share": 0.9
     },
-    "application/web/src/components/assignee_share": {
+    "application/web/src/builder/variables": {
       "area": "datasets",
-      "votes": 6,
-      "share": 0.86
+      "votes": 9,
+      "share": 0.82
     },
-    "application/web/src/components/navigation": {
+    "application/web/src/components/integration": {
       "area": "forms-fields",
-      "votes": 10,
+      "votes": 6,
       "share": 1
     },
     "application/web/src/components/roles": {
       "area": "forms-fields",
-      "votes": 10,
-      "share": 0.91
-    },
-    "application/web/src/create/ai_create": {
-      "area": "expressions",
-      "votes": 17,
-      "share": 0.65
-    },
-    "application/web/src/portal": {
-      "area": "datasets",
-      "votes": 6,
-      "share": 0.6
+      "votes": 14,
+      "share": 1
     },
     "application/web/src/proptypes": {
-      "area": "forms-fields",
+      "area": "datasets",
       "votes": 15,
+      "share": 0.94
+    },
+    "application/web/src/runtime/app_custom_ui": {
+      "area": "developer-sdk",
+      "votes": 6,
       "share": 1
     },
     "application/web/src/runtime/app_topnav": {
-      "area": "process-workflow",
+      "area": "forms-fields",
       "votes": 12,
       "share": 1
     },
     "application/web/src/runtime/empty_states": {
-      "area": "pages-ui",
+      "area": "process-workflow",
       "votes": 9,
-      "share": 0.9
+      "share": 1
     },
     "application/web/src/runtime/manage": {
-      "area": "datasets",
+      "area": "forms-fields",
       "votes": 6,
       "share": 1
     },
+    "application/web/src/service": {
+      "area": "forms-fields",
+      "votes": 198,
+      "share": 0.76
+    },
+    "appstore": {
+      "area": "forms-fields",
+      "votes": 217,
+      "share": 0.61
+    },
     "appstore/web/src/home": {
-      "area": "expressions",
+      "area": "access-governance",
       "votes": 65,
       "share": 0.79
     },
@@ -276,18 +296,18 @@
       "votes": 73,
       "share": 0.68
     },
-    "assist/web/src/components/addcontextpopover": {
-      "area": "notifications",
-      "votes": 9,
-      "share": 1
-    },
-    "assist/web/src/components/conversations": {
-      "area": "pages-ui",
-      "votes": 17,
+    "assist": {
+      "area": "forms-fields",
+      "votes": 293,
       "share": 0.63
     },
+    "assist/web/src/components/conversations": {
+      "area": "notifications",
+      "votes": 17,
+      "share": 0.61
+    },
     "assist/web/src/components/firstread": {
-      "area": "forms-fields",
+      "area": "expressions",
       "votes": 16,
       "share": 1
     },
@@ -296,55 +316,55 @@
       "votes": 6,
       "share": 1
     },
-    "assist/web/src/components/promptinput": {
-      "area": "notifications",
-      "votes": 8,
-      "share": 1
-    },
     "assist/web/src/components/query": {
-      "area": "pages-ui",
+      "area": "forms-fields",
       "votes": 10,
       "share": 1
     },
-    "base/common/src/accessctrl": {
-      "area": "forms-fields",
-      "votes": 13,
-      "share": 0.76
-    },
-    "base/common/src/clients": {
-      "area": "forms-fields",
-      "votes": 30,
+    "assist/web/src/components/rightsidebar": {
+      "area": "pages-ui",
+      "votes": 6,
       "share": 1
     },
-    "base/common/src/constants": {
+    "assist/web/src/service": {
       "area": "forms-fields",
-      "votes": 54,
-      "share": 0.68
+      "votes": 26,
+      "share": 0.76
     },
-    "base/common/src/form/validations": {
+    "assist/web/src/types": {
       "area": "forms-fields",
-      "votes": 54,
-      "share": 0.96
+      "votes": 43,
+      "share": 0.61
     },
-    "base/common/src/libs/hooks": {
-      "area": "reports-analytics",
-      "votes": 29,
-      "share": 0.94
+    "base/common/src/accessctrl": {
+      "area": "forms-fields",
+      "votes": 9,
+      "share": 1
+    },
+    "base/common/src/clients": {
+      "area": "pages-ui",
+      "votes": 19,
+      "share": 0.63
+    },
+    "base/common/src/clients/push_notification": {
+      "area": "forms-fields",
+      "votes": 11,
+      "share": 1
+    },
+    "base/common/src/form/util": {
+      "area": "forms-fields",
+      "votes": 26,
+      "share": 0.65
+    },
+    "base/common/src/libs": {
+      "area": "forms-fields",
+      "votes": 620,
+      "share": 0.69
     },
     "base/common/src/libs/i18n": {
-      "area": "forms-fields",
-      "votes": 16,
-      "share": 0.89
-    },
-    "base/common/src/libs/kf_sdk": {
-      "area": "forms-fields",
-      "votes": 73,
-      "share": 0.68
-    },
-    "base/common/src/libs/theme": {
-      "area": "forms-fields",
-      "votes": 176,
-      "share": 0.8
+      "area": "process-workflow",
+      "votes": 15,
+      "share": 0.83
     },
     "base/common/src/messages": {
       "area": "datasets",
@@ -352,77 +372,52 @@
       "share": 1
     },
     "base/common/src/mocks": {
-      "area": "boards-cases",
+      "area": "forms-fields",
       "votes": 8,
       "share": 1
+    },
+    "base/common/src/translation": {
+      "area": "forms-fields",
+      "votes": 30,
+      "share": 0.65
     },
     "base/pwa/src": {
       "area": "forms-fields",
-      "votes": 32,
-      "share": 0.7
+      "votes": 44,
+      "share": 0.96
     },
-    "base/pwa/src/workflows": {
-      "area": "pages-ui",
-      "votes": 12,
+    "base/web": {
+      "area": "forms-fields",
+      "votes": 149,
+      "share": 0.92
+    },
+    "case": {
+      "area": "forms-fields",
+      "votes": 1015,
+      "share": 0.61
+    },
+    "case/web/src/apps/report": {
+      "area": "expressions",
+      "votes": 6,
       "share": 1
     },
-    "base/web/src": {
+    "case/web/src/layouts": {
       "area": "forms-fields",
+      "votes": 10,
+      "share": 0.71
+    },
+    "case/web/src/modules": {
+      "area": "forms-fields",
+      "votes": 345,
+      "share": 0.67
+    },
+    "case/web/src/modules/setting": {
+      "area": "developer-sdk",
       "votes": 15,
       "share": 1
     },
-    "case/common/src/service": {
-      "area": "forms-fields",
-      "votes": 14,
-      "share": 0.61
-    },
-    "case/common/src/services": {
-      "area": "forms-fields",
-      "votes": 12,
-      "share": 0.92
-    },
-    "case/pwa/src/apps": {
-      "area": "forms-fields",
-      "votes": 7,
-      "share": 0.78
-    },
-    "case/pwa/src/proptypes": {
-      "area": "process-workflow",
-      "votes": 16,
-      "share": 1
-    },
-    "case/web/src/apps/report": {
-      "area": "forms-fields",
-      "votes": 8,
-      "share": 1
-    },
-    "case/web/src/modules/report": {
-      "area": "forms-fields",
-      "votes": 16,
-      "share": 0.62
-    },
-    "case/web/src/modules/setting": {
-      "area": "forms-fields",
-      "votes": 35,
-      "share": 1
-    },
-    "case/web/src/modules/share": {
-      "area": "forms-fields",
-      "votes": 8,
-      "share": 1
-    },
-    "case/web/src/modules/visualization": {
-      "area": "forms-fields",
-      "votes": 49,
-      "share": 0.64
-    },
-    "case/web/src/modules/workflow": {
-      "area": "forms-fields",
-      "votes": 61,
-      "share": 0.91
-    },
     "case/web/src/proptypes": {
-      "area": "forms-fields",
+      "area": "notifications",
       "votes": 36,
       "share": 1
     },
@@ -433,23 +428,23 @@
     },
     "case/web/src/shared/utils": {
       "area": "forms-fields",
-      "votes": 7,
-      "share": 0.88
-    },
-    "components/common/src/comment": {
-      "area": "pages-ui",
-      "votes": 10,
+      "votes": 8,
       "share": 1
+    },
+    "components/common": {
+      "area": "forms-fields",
+      "votes": 19,
+      "share": 0.63
     },
     "components/pwa": {
       "area": "forms-fields",
-      "votes": 196,
-      "share": 0.9
+      "votes": 112,
+      "share": 0.7
     },
-    "components/pwa/src/datasheet": {
-      "area": "datasets",
-      "votes": 11,
-      "share": 1
+    "components/pwa/src/datatable": {
+      "area": "pages-ui",
+      "votes": 44,
+      "share": 0.92
     },
     "components/web/src/associated_flows": {
       "area": "process-workflow",
@@ -466,28 +461,23 @@
       "votes": 59,
       "share": 1
     },
-    "components/web/src/comment": {
-      "area": "pages-ui",
-      "votes": 38,
-      "share": 1
-    },
     "components/web/src/criteria": {
-      "area": "expressions",
+      "area": "forms-fields",
       "votes": 60,
       "share": 1
     },
     "components/web/src/datasheet": {
       "area": "datasets",
-      "votes": 147,
-      "share": 0.95
+      "votes": 135,
+      "share": 0.94
     },
     "components/web/src/datatable": {
-      "area": "forms-fields",
-      "votes": 26,
-      "share": 1
+      "area": "pages-ui",
+      "votes": 24,
+      "share": 0.83
     },
     "components/web/src/dependency_dialog": {
-      "area": "admin-environments",
+      "area": "forms-fields",
       "votes": 22,
       "share": 1
     },
@@ -498,7 +488,7 @@
     },
     "components/web/src/flow_create": {
       "area": "process-workflow",
-      "votes": 23,
+      "votes": 49,
       "share": 1
     },
     "components/web/src/flow_dashboard": {
@@ -518,43 +508,38 @@
     },
     "components/web/src/form": {
       "area": "forms-fields",
-      "votes": 759,
-      "share": 0.73
+      "votes": 953,
+      "share": 0.92
+    },
+    "components/web/src/form_builder": {
+      "area": "forms-fields",
+      "votes": 809,
+      "share": 0.75
     },
     "components/web/src/form_builder/shared": {
       "area": "expressions",
-      "votes": 279,
-      "share": 0.66
-    },
-    "components/web/src/form_builder/utils": {
-      "area": "forms-fields",
-      "votes": 72,
-      "share": 0.95
+      "votes": 261,
+      "share": 0.64
     },
     "components/web/src/form_print": {
       "area": "forms-fields",
-      "votes": 102,
-      "share": 1
-    },
-    "components/web/src/form/permission_form": {
-      "area": "access-governance",
-      "votes": 44,
+      "votes": 88,
       "share": 1
     },
     "components/web/src/formlayout": {
       "area": "forms-fields",
-      "votes": 155,
-      "share": 0.96
+      "votes": 139,
+      "share": 1
     },
     "components/web/src/formwidgets": {
-      "area": "datasets",
-      "votes": 15,
-      "share": 0.88
+      "area": "forms-fields",
+      "votes": 23,
+      "share": 0.77
     },
     "components/web/src/geolocation": {
       "area": "forms-fields",
-      "votes": 6,
-      "share": 1
+      "votes": 10,
+      "share": 0.67
     },
     "components/web/src/icon_library": {
       "area": "pages-ui",
@@ -567,14 +552,14 @@
       "share": 1
     },
     "components/web/src/icons": {
-      "area": "forms-fields",
-      "votes": 37,
-      "share": 1
+      "area": "pages-ui",
+      "votes": 36,
+      "share": 0.97
     },
     "components/web/src/import_csv": {
       "area": "datasets",
       "votes": 23,
-      "share": 1
+      "share": 0.88
     },
     "components/web/src/kanban": {
       "area": "boards-cases",
@@ -587,9 +572,14 @@
       "share": 1
     },
     "components/web/src/listview": {
-      "area": "reports-analytics",
-      "votes": 79,
-      "share": 0.94
+      "area": "pages-ui",
+      "votes": 81,
+      "share": 0.84
+    },
+    "components/web/src/listview/readonlylistview": {
+      "area": "forms-fields",
+      "votes": 11,
+      "share": 1
     },
     "components/web/src/monacoeditor": {
       "area": "developer-sdk",
@@ -602,14 +592,14 @@
       "share": 1
     },
     "components/web/src/public_form_settings": {
-      "area": "portals",
+      "area": "forms-fields",
       "votes": 70,
       "share": 1
     },
     "components/web/src/resource_manager": {
       "area": "pages-ui",
-      "votes": 99,
-      "share": 1
+      "votes": 103,
+      "share": 0.9
     },
     "components/web/src/sandpack_editor": {
       "area": "developer-sdk",
@@ -623,12 +613,12 @@
     },
     "components/web/src/subflow": {
       "area": "process-workflow",
-      "votes": 46,
+      "votes": 61,
       "share": 1
     },
     "components/web/src/tableimport": {
-      "area": "datasets",
-      "votes": 22,
+      "area": "forms-fields",
+      "votes": 28,
       "share": 1
     },
     "components/web/src/themes": {
@@ -638,107 +628,97 @@
     },
     "components/web/src/view_builder": {
       "area": "pages-ui",
-      "votes": 52,
-      "share": 0.93
+      "votes": 47,
+      "share": 0.92
     },
     "config/axiom/agent": {
       "area": "forms-fields",
-      "votes": 119,
-      "share": 0.75
+      "votes": 63,
+      "share": 0.8
     },
     "config/axiom/context": {
-      "area": "process-workflow",
+      "area": "forms-fields",
       "votes": 41,
       "share": 1
     },
-    "config/genai": {
-      "area": "admin-environments",
-      "votes": 12,
-      "share": 1
-    },
-    "dataset/common/src/mocks": {
-      "area": "pages-ui",
-      "votes": 10,
-      "share": 1
-    },
-    "dataset/web/src/main": {
+    "dataset": {
       "area": "forms-fields",
-      "votes": 94,
-      "share": 0.73
+      "votes": 268,
+      "share": 0.64
     },
-    "dataset/web/src/pages/security": {
-      "area": "expressions",
+    "dataset/web/src/pages": {
+      "area": "access-governance",
       "votes": 14,
-      "share": 1
-    },
-    "dataset/web/src/view": {
-      "area": "expressions",
-      "votes": 6,
-      "share": 0.75
+      "share": 0.67
     },
     "dataset/web/src/viewer/toolbar": {
-      "area": "reports-analytics",
+      "area": "access-governance",
       "votes": 9,
       "share": 1
     },
-    "decisiontable/pwa/src": {
+    "decisiontable": {
       "area": "forms-fields",
-      "votes": 6,
-      "share": 0.67
+      "votes": 226,
+      "share": 0.65
     },
     "decisiontable/web/src/auto_generate": {
-      "area": "portals",
+      "area": "reports-analytics",
       "votes": 10,
       "share": 0.63
     },
     "decisiontable/web/src/column_wizard": {
       "area": "forms-fields",
-      "votes": 18,
-      "share": 0.72
+      "votes": 25,
+      "share": 1
     },
     "decisiontable/web/src/constants": {
-      "area": "access-governance",
+      "area": "forms-fields",
       "votes": 13,
       "share": 0.65
     },
     "decisiontable/web/src/evaluate": {
-      "area": "expressions",
+      "area": "access-governance",
       "votes": 6,
       "share": 1
     },
     "decisiontable/web/src/evaluation_settings": {
-      "area": "pages-ui",
+      "area": "notifications",
       "votes": 13,
       "share": 0.93
     },
     "decisiontable/web/src/flow_lock": {
-      "area": "expressions",
+      "area": "access-governance",
       "votes": 6,
       "share": 1
+    },
+    "decisiontable/web/src/importcsv": {
+      "area": "forms-fields",
+      "votes": 11,
+      "share": 0.92
     },
     "decisiontable/web/src/shared": {
       "area": "forms-fields",
       "votes": 31,
-      "share": 0.82
+      "share": 0.86
     },
     "decisiontable/web/src/tablecomponent": {
-      "area": "access-governance",
+      "area": "forms-fields",
       "votes": 11,
       "share": 1
     },
     "decisiontable/web/src/toolbar": {
-      "area": "expressions",
+      "area": "access-governance",
       "votes": 7,
       "share": 1
     },
     "error": {
       "area": "forms-fields",
-      "votes": 121,
-      "share": 0.9
+      "votes": 143,
+      "share": 0.99
     },
-    "externaldata/pwa/src": {
+    "externaldata": {
       "area": "forms-fields",
-      "votes": 6,
+      "votes": 213,
       "share": 0.67
     },
     "externaldata/web/src/app": {
@@ -747,49 +727,69 @@
       "share": 1
     },
     "externaldata/web/src/connections": {
-      "area": "expressions",
-      "votes": 50,
-      "share": 0.72
+      "area": "access-governance",
+      "votes": 48,
+      "share": 0.7
     },
-    "form/common/src/metadata": {
-      "area": "pages-ui",
-      "votes": 11,
-      "share": 1
-    },
-    "form/pwa": {
+    "form": {
       "area": "forms-fields",
-      "votes": 111,
-      "share": 0.68
+      "votes": 427,
+      "share": 0.61
     },
-    "form/web/src/components/form": {
+    "form/pwa/src": {
       "area": "forms-fields",
-      "votes": 14,
-      "share": 1
+      "votes": 65,
+      "share": 0.73
     },
-    "form/web/src/components/gallery": {
-      "area": "reports-analytics",
-      "votes": 41,
-      "share": 0.76
+    "form/web/src/components": {
+      "area": "forms-fields",
+      "votes": 87,
+      "share": 0.69
     },
     "form/web/src/components/import_csv": {
-      "area": "expressions",
+      "area": "pages-ui",
       "votes": 7,
       "share": 1
     },
     "form/web/src/publicform": {
       "area": "forms-fields",
-      "votes": 16,
-      "share": 0.8
+      "votes": 18,
+      "share": 0.9
     },
     "form/web/src/service": {
-      "area": "expressions",
-      "votes": 15,
-      "share": 0.83
+      "area": "access-governance",
+      "votes": 13,
+      "share": 0.72
     },
-    "integration/web/src/components/ai_create": {
+    "form/web/src/views/datasheet": {
+      "area": "forms-fields",
+      "votes": 31,
+      "share": 0.69
+    },
+    "form/web/src/views/gallery": {
+      "area": "forms-fields",
+      "votes": 36,
+      "share": 0.61
+    },
+    "form/web/src/views/shared_components": {
       "area": "forms-fields",
       "votes": 18,
-      "share": 0.95
+      "share": 0.69
+    },
+    "integration": {
+      "area": "forms-fields",
+      "votes": 1234,
+      "share": 0.61
+    },
+    "integration/web/src": {
+      "area": "forms-fields",
+      "votes": 1123,
+      "share": 0.61
+    },
+    "integration/web/src/components/ai_create": {
+      "area": "notifications",
+      "votes": 19,
+      "share": 1
     },
     "integration/web/src/components/connection_picker": {
       "area": "forms-fields",
@@ -803,11 +803,11 @@
     },
     "integration/web/src/components/deprecated_connectors": {
       "area": "forms-fields",
-      "votes": 13,
-      "share": 1
+      "votes": 12,
+      "share": 0.92
     },
     "integration/web/src/components/field_viewer": {
-      "area": "portals",
+      "area": "process-workflow",
       "votes": 7,
       "share": 1
     },
@@ -817,14 +817,14 @@
       "share": 1
     },
     "integration/web/src/components/http_ai_preview": {
-      "area": "process-workflow",
+      "area": "expressions",
       "votes": 7,
       "share": 1
     },
     "integration/web/src/components/newconnection": {
-      "area": "reports-analytics",
-      "votes": 44,
-      "share": 0.94
+      "area": "forms-fields",
+      "votes": 6,
+      "share": 1
     },
     "integration/web/src/components/popular_triggers_suggestion": {
       "area": "forms-fields",
@@ -832,269 +832,219 @@
       "share": 1
     },
     "integration/web/src/components/taskhistory": {
-      "area": "access-governance",
+      "area": "forms-fields",
       "votes": 14,
       "share": 1
     },
-    "integration/web/src/connector_builder/connector_details_modal": {
+    "integration/web/src/home/connections": {
+      "area": "pages-ui",
+      "votes": 18,
+      "share": 0.82
+    },
+    "integration/web/src/home/taskhistory": {
       "area": "forms-fields",
-      "votes": 6,
+      "votes": 24,
       "share": 1
     },
-    "integration/web/src/home": {
+    "integration/web/src/metadata/connector_model": {
       "area": "forms-fields",
-      "votes": 67,
-      "share": 0.81
-    },
-    "integration/web/src/store": {
-      "area": "forms-fields",
-      "votes": 16,
-      "share": 0.89
+      "votes": 108,
+      "share": 0.66
     },
     "integration/web/src/wizard/header": {
-      "area": "forms-fields",
-      "votes": 8,
-      "share": 0.89
+      "area": "developer-sdk",
+      "votes": 7,
+      "share": 0.78
     },
     "job": {
       "area": "pages-ui",
-      "votes": 6,
-      "share": 0.67
+      "votes": 87,
+      "share": 0.91
     },
-    "list/common": {
+    "list": {
       "area": "forms-fields",
-      "votes": 8,
-      "share": 1
+      "votes": 132,
+      "share": 0.64
     },
     "list/web/src": {
       "area": "forms-fields",
-      "votes": 36,
-      "share": 0.9
+      "votes": 39,
+      "share": 1
     },
     "main/common": {
       "area": "forms-fields",
       "votes": 25,
       "share": 1
     },
-    "main/pwa/public": {
-      "area": "process-workflow",
-      "votes": 24,
-      "share": 1
-    },
     "main/pwa/src": {
-      "area": "forms-fields",
-      "votes": 18,
-      "share": 1
-    },
-    "main/web/src/components": {
-      "area": "boards-cases",
+      "area": "developer-sdk",
       "votes": 11,
       "share": 0.61
     },
-    "main/web/src/components/base": {
+    "main/pwa/src/components": {
       "area": "forms-fields",
       "votes": 7,
       "share": 1
     },
-    "main/web/src/service": {
-      "area": "notifications",
-      "votes": 60,
-      "share": 0.92
-    },
-    "migration": {
+    "main/web": {
       "area": "forms-fields",
-      "votes": 186,
-      "share": 0.72
-    },
-    "page/common/src/metadata": {
-      "area": "forms-fields",
-      "votes": 181,
+      "votes": 2042,
       "share": 0.61
     },
-    "page/pwa/src/components": {
+    "main/web/src/components/base": {
+      "area": "pages-ui",
+      "votes": 7,
+      "share": 1
+    },
+    "main/web/src/components/leftnav": {
+      "area": "expressions",
+      "votes": 11,
+      "share": 0.92
+    },
+    "migration/new_app_builder": {
       "area": "forms-fields",
-      "votes": 129,
-      "share": 0.65
+      "votes": 110,
+      "share": 1
+    },
+    "page/common": {
+      "area": "forms-fields",
+      "votes": 346,
+      "share": 0.69
+    },
+    "page/pwa/src/components/analytics": {
+      "area": "forms-fields",
+      "votes": 17,
+      "share": 1
+    },
+    "page/pwa/src/components/form": {
+      "area": "pages-ui",
+      "votes": 8,
+      "share": 0.67
+    },
+    "page/pwa/src/components/process": {
+      "area": "pages-ui",
+      "votes": 19,
+      "share": 0.83
     },
     "page/pwa/src/components/view": {
-      "area": "pages-ui",
+      "area": "forms-fields",
       "votes": 14,
       "share": 0.7
     },
     "page/pwa/src/runtime": {
-      "area": "pages-ui",
+      "area": "notifications",
       "votes": 11,
-      "share": 0.73
+      "share": 0.85
     },
-    "page/web/src/builder": {
+    "page/web": {
       "area": "forms-fields",
-      "votes": 151,
-      "share": 0.77
+      "votes": 886,
+      "share": 0.6
+    },
+    "page/web/src/builder/components": {
+      "area": "forms-fields",
+      "votes": 20,
+      "share": 0.63
+    },
+    "page/web/src/components/analytics": {
+      "area": "forms-fields",
+      "votes": 26,
+      "share": 0.74
+    },
+    "page/web/src/components/case": {
+      "area": "forms-fields",
+      "votes": 43,
+      "share": 0.61
     },
     "page/web/src/components/common": {
       "area": "forms-fields",
-      "votes": 11,
-      "share": 0.73
+      "votes": 9,
+      "share": 0.6
     },
     "page/web/src/components/containers": {
-      "area": "process-workflow",
-      "votes": 10,
-      "share": 0.71
+      "area": "expressions",
+      "votes": 9,
+      "share": 0.75
     },
-    "page/web/src/components/decisiontable": {
+    "page/web/src/components/custom": {
       "area": "developer-sdk",
-      "votes": 7,
-      "share": 1
+      "votes": 9,
+      "share": 0.6
     },
-    "page/web/src/components/process": {
-      "area": "pages-ui",
-      "votes": 51,
+    "page/web/src/components/form": {
+      "area": "forms-fields",
+      "votes": 29,
       "share": 0.63
     },
-    "page/web/src/components/report": {
+    "page/web/src/components/process": {
       "area": "forms-fields",
-      "votes": 38,
-      "share": 0.64
-    },
-    "page/web/src/properties_framework/components": {
-      "area": "reports-analytics",
-      "votes": 7,
-      "share": 1
-    },
-    "page/web/src/properties_framework/event_property": {
-      "area": "access-governance",
-      "votes": 17,
-      "share": 0.94
-    },
-    "page/web/src/properties_framework/manifest": {
-      "area": "forms-fields",
-      "votes": 8,
-      "share": 1
-    },
-    "page/web/src/properties_framework/visibility_property": {
-      "area": "expressions",
-      "votes": 48,
-      "share": 0.89
-    },
-    "page/web/src/proptypes": {
-      "area": "datasets",
-      "votes": 10,
-      "share": 1
+      "votes": 26,
+      "share": 0.6
     },
     "page/web/src/runtime": {
-      "area": "developer-sdk",
-      "votes": 10,
-      "share": 0.67
+      "area": "pages-ui",
+      "votes": 11,
+      "share": 0.85
     },
-    "page/web/src/shared": {
-      "area": "reports-analytics",
-      "votes": 30,
-      "share": 0.94
-    },
-    "page/web/src/templates": {
-      "area": "access-governance",
-      "votes": 18,
-      "share": 1
-    },
-    "page/web/src/utils": {
+    "platform": {
       "area": "forms-fields",
-      "votes": 30,
-      "share": 0.77
+      "votes": 1148,
+      "share": 0.6
+    },
+    "platform/common/src/constant": {
+      "area": "forms-fields",
+      "votes": 75,
+      "share": 0.74
     },
     "platform/common/src/mocks": {
       "area": "forms-fields",
       "votes": 8,
       "share": 1
     },
-    "platform/pwa/src/components": {
+    "platform/common/src/utils": {
       "area": "forms-fields",
-      "votes": 8,
-      "share": 1
-    },
-    "platform/pwa/src/filepicker": {
-      "area": "expressions",
-      "votes": 26,
-      "share": 0.7
-    },
-    "platform/pwa/src/filepicker/hooks": {
-      "area": "developer-sdk",
-      "votes": 9,
-      "share": 1
-    },
-    "platform/pwa/src/global_myitems/card": {
-      "area": "forms-fields",
-      "votes": 10,
-      "share": 1
-    },
-    "platform/pwa/src/mytasks": {
-      "area": "forms-fields",
-      "votes": 6,
-      "share": 1
-    },
-    "platform/pwa/src/notification/notification_list": {
-      "area": "forms-fields",
-      "votes": 9,
-      "share": 0.9
+      "votes": 50,
+      "share": 0.85
     },
     "platform/pwa/src/pendingactions/card": {
       "area": "forms-fields",
       "votes": 6,
       "share": 1
     },
-    "platform/pwa/src/search": {
-      "area": "admin-environments",
-      "votes": 19,
-      "share": 0.76
-    },
     "platform/web/src/annotation": {
       "area": "forms-fields",
-      "votes": 98,
-      "share": 0.98
+      "votes": 99,
+      "share": 0.99
     },
     "platform/web/src/apps": {
-      "area": "expressions",
+      "area": "access-governance",
       "votes": 34,
       "share": 1
     },
-    "platform/web/src/audit/components": {
-      "area": "forms-fields",
-      "votes": 25,
+    "platform/web/src/audit": {
+      "area": "expressions",
+      "votes": 43,
       "share": 0.61
     },
-    "platform/web/src/components/impersonation": {
-      "area": "process-workflow",
-      "votes": 8,
-      "share": 1
-    },
-    "platform/web/src/explorer/components": {
-      "area": "pages-ui",
-      "votes": 61,
-      "share": 0.62
-    },
-    "platform/web/src/explorer/hooks": {
+    "platform/web/src/audit/service": {
       "area": "forms-fields",
-      "votes": 13,
-      "share": 1
+      "votes": 9,
+      "share": 0.69
     },
-    "platform/web/src/filepicker": {
+    "platform/web/src/components": {
       "area": "forms-fields",
-      "votes": 57,
-      "share": 0.79
+      "votes": 24,
+      "share": 0.86
     },
-    "platform/web/src/filepreview/header": {
-      "area": "portals",
-      "votes": 8,
+    "platform/web/src/filepicker/docs": {
+      "area": "reports-analytics",
+      "votes": 6,
       "share": 1
     },
-    "platform/web/src/filepreview/pdfpreview": {
+    "platform/web/src/filepreview": {
       "area": "forms-fields",
-      "votes": 8,
-      "share": 1
-    },
-    "platform/web/src/filepreview/plugins": {
-      "area": "portals",
-      "votes": 17,
-      "share": 0.89
+      "votes": 77,
+      "share": 0.6
     },
     "platform/web/src/filepreview/summarization": {
       "area": "pages-ui",
@@ -1102,14 +1052,9 @@
       "share": 1
     },
     "platform/web/src/filepreview/video_player": {
-      "area": "forms-fields",
-      "votes": 23,
-      "share": 0.92
-    },
-    "platform/web/src/filepreview/xlspreview": {
-      "area": "portals",
-      "votes": 7,
-      "share": 1
+      "area": "process-workflow",
+      "votes": 18,
+      "share": 0.72
     },
     "platform/web/src/importform": {
       "area": "forms-fields",
@@ -1117,134 +1062,144 @@
       "share": 1
     },
     "platform/web/src/myitems": {
-      "area": "access-governance",
+      "area": "forms-fields",
       "votes": 7,
       "share": 1
     },
-    "platform/web/src/myspace": {
+    "platform/web/src/myspace/shared": {
       "area": "forms-fields",
-      "votes": 83,
-      "share": 0.95
+      "votes": 24,
+      "share": 0.73
     },
     "platform/web/src/notification": {
-      "area": "expressions",
-      "votes": 72,
-      "share": 0.67
+      "area": "access-governance",
+      "votes": 74,
+      "share": 0.69
     },
     "platform/web/src/notification/notification_list": {
+      "area": "pages-ui",
+      "votes": 15,
+      "share": 0.88
+    },
+    "platform/web/src/pdf_generation/components": {
       "area": "forms-fields",
-      "votes": 12,
-      "share": 0.71
+      "votes": 48,
+      "share": 0.67
     },
     "platform/web/src/primitives": {
-      "area": "reports-analytics",
+      "area": "forms-fields",
       "votes": 55,
       "share": 1
     },
-    "platform/web/src/search/new_search": {
-      "area": "notifications",
-      "votes": 44,
-      "share": 1
-    },
-    "platform/web/src/search/quick_search": {
-      "area": "pages-ui",
-      "votes": 12,
-      "share": 1
-    },
-    "platform/web/src/search/search_popup": {
+    "platform/web/src/search": {
       "area": "forms-fields",
-      "votes": 12,
-      "share": 0.86
-    },
-    "platform/web/src/search/search_result_page": {
-      "area": "datasets",
-      "votes": 7,
-      "share": 1
-    },
-    "process/common": {
-      "area": "forms-fields",
-      "votes": 141,
+      "votes": 52,
       "share": 0.64
     },
-    "process/common/src/component": {
+    "platform/web/src/search/home": {
       "area": "expressions",
-      "votes": 10,
-      "share": 0.71
-    },
-    "process/pwa/src/admin/more_action_list": {
-      "area": "datasets",
-      "votes": 9,
-      "share": 0.9
-    },
-    "process/pwa/src/app/myitem": {
-      "area": "expressions",
-      "votes": 7,
-      "share": 1
-    },
-    "process/pwa/src/app/mytask": {
-      "area": "datasets",
       "votes": 6,
       "share": 1
     },
+    "platform/web/src/search/quick_search": {
+      "area": "process-workflow",
+      "votes": 12,
+      "share": 1
+    },
+    "platform/web/src/search/search_result_page": {
+      "area": "pages-ui",
+      "votes": 7,
+      "share": 1
+    },
+    "process/common/src/component": {
+      "area": "forms-fields",
+      "votes": 10,
+      "share": 0.77
+    },
+    "process/common/src/form": {
+      "area": "forms-fields",
+      "votes": 13,
+      "share": 0.72
+    },
+    "process/common/src/hooks": {
+      "area": "forms-fields",
+      "votes": 6,
+      "share": 1
+    },
+    "process/common/src/stores": {
+      "area": "pages-ui",
+      "votes": 14,
+      "share": 0.64
+    },
+    "process/common/src/utils": {
+      "area": "forms-fields",
+      "votes": 38,
+      "share": 0.84
+    },
+    "process/pwa/src/admin/more_action_list": {
+      "area": "developer-sdk",
+      "votes": 11,
+      "share": 0.79
+    },
+    "process/pwa/src/app": {
+      "area": "access-governance",
+      "votes": 14,
+      "share": 0.7
+    },
     "process/pwa/src/comment": {
       "area": "forms-fields",
-      "votes": 24,
-      "share": 0.75
+      "votes": 37,
+      "share": 1
+    },
+    "process/pwa/src/component/item_card": {
+      "area": "access-governance",
+      "votes": 6,
+      "share": 1
     },
     "process/pwa/src/dashboard": {
       "area": "forms-fields",
       "votes": 15,
       "share": 1
     },
-    "process/pwa/src/form/formlayout": {
-      "area": "pages-ui",
-      "votes": 19,
-      "share": 0.79
-    },
-    "process/pwa/src/form/progress": {
-      "area": "notifications",
-      "votes": 17,
-      "share": 1
+    "process/pwa/src/form": {
+      "area": "forms-fields",
+      "votes": 58,
+      "share": 0.88
     },
     "process/pwa/src/myitems": {
-      "area": "expressions",
+      "area": "access-governance",
       "votes": 8,
       "share": 1
     },
     "process/pwa/src/mytasks": {
-      "area": "pages-ui",
-      "votes": 10,
-      "share": 0.91
+      "area": "access-governance",
+      "votes": 11,
+      "share": 1
     },
     "process/pwa/src/publicform": {
-      "area": "forms-fields",
+      "area": "pages-ui",
       "votes": 8,
       "share": 0.8
     },
-    "process/pwa/src/services": {
-      "area": "pages-ui",
-      "votes": 7,
-      "share": 0.88
-    },
     "process/pwa/src/system_metrics": {
-      "area": "pages-ui",
-      "votes": 24,
-      "share": 0.89
-    },
-    "process/web/src/admin": {
       "area": "forms-fields",
-      "votes": 7,
-      "share": 0.78
+      "votes": 27,
+      "share": 0.93
+    },
+    "process/web": {
+      "area": "forms-fields",
+      "votes": 1154,
+      "share": 0.61
+    },
+    "process/web/src/apps": {
+      "area": "expressions",
+      "votes": 19,
+      "share": 0.66
     },
     "process/web/src/component": {
       "area": "forms-fields",
-      "votes": 33,
-      "share": 0.67
-    },
-    "process/web/src/component/reassign_modal": {
-      "area": "expressions",
-      "votes": 6,
-      "share": 1
+      "votes": 15,
+      "share": 0.88
     },
     "process/web/src/dashboard": {
       "area": "forms-fields",
@@ -1252,83 +1207,63 @@
       "share": 1
     },
     "process/web/src/echart": {
-      "area": "forms-fields",
+      "area": "pages-ui",
       "votes": 14,
       "share": 1
     },
     "process/web/src/emptystate": {
-      "area": "forms-fields",
+      "area": "pages-ui",
       "votes": 7,
+      "share": 1
+    },
+    "process/web/src/form/components": {
+      "area": "forms-fields",
+      "votes": 143,
+      "share": 0.67
+    },
+    "process/web/src/form/service": {
+      "area": "process-workflow",
+      "votes": 8,
       "share": 1
     },
     "process/web/src/form/variants": {
       "area": "forms-fields",
-      "votes": 8,
-      "share": 0.8
-    },
-    "process/web/src/home/banner": {
-      "area": "forms-fields",
       "votes": 9,
-      "share": 1
+      "share": 0.9
+    },
+    "process/web/src/home": {
+      "area": "forms-fields",
+      "votes": 45,
+      "share": 0.73
     },
     "process/web/src/home/hooks": {
-      "area": "pages-ui",
+      "area": "datasets",
       "votes": 6,
       "share": 0.67
     },
-    "process/web/src/home/schema": {
-      "area": "forms-fields",
-      "votes": 6,
-      "share": 1
-    },
     "process/web/src/metrics": {
       "area": "forms-fields",
-      "votes": 58,
-      "share": 1
+      "votes": 31,
+      "share": 0.62
     },
-    "process/web/src/modules/create": {
+    "process/web/src/metrics/overview": {
       "area": "pages-ui",
-      "votes": 9,
-      "share": 0.64
+      "votes": 15,
+      "share": 0.83
     },
-    "process/web/src/modules/document_template": {
-      "area": "developer-sdk",
-      "votes": 18,
-      "share": 1
-    },
-    "process/web/src/modules/my_comments": {
-      "area": "expressions",
-      "votes": 49,
-      "share": 1
+    "process/web/src/modules": {
+      "area": "forms-fields",
+      "votes": 667,
+      "share": 0.61
     },
     "process/web/src/modules/myitems": {
-      "area": "forms-fields",
-      "votes": 52,
-      "share": 0.87
-    },
-    "process/web/src/modules/participated": {
-      "area": "forms-fields",
-      "votes": 13,
-      "share": 1
+      "area": "datasets",
+      "votes": 22,
+      "share": 0.63
     },
     "process/web/src/modules/preview": {
-      "area": "forms-fields",
+      "area": "admin-environments",
       "votes": 18,
-      "share": 1
-    },
-    "process/web/src/modules/security": {
-      "area": "forms-fields",
-      "votes": 23,
-      "share": 1
-    },
-    "process/web/src/modules/share": {
-      "area": "forms-fields",
-      "votes": 15,
-      "share": 1
-    },
-    "process/web/src/modules/solutionoverview": {
-      "area": "reports-analytics",
-      "votes": 51,
       "share": 1
     },
     "process/web/src/proptypes": {
@@ -1337,294 +1272,244 @@
       "share": 1
     },
     "process/web/src/publicform": {
-      "area": "forms-fields",
+      "area": "pages-ui",
       "votes": 8,
       "share": 0.8
     },
     "process/web/src/report": {
-      "area": "developer-sdk",
+      "area": "datasets",
       "votes": 15,
       "share": 0.79
     },
     "process/web/src/services": {
-      "area": "portals",
+      "area": "reports-analytics",
       "votes": 14,
       "share": 0.7
     },
-    "process/web/src/shared/constants": {
+    "process/web/src/shared": {
       "area": "forms-fields",
-      "votes": 30,
-      "share": 0.75
+      "votes": 60,
+      "share": 0.61
+    },
+    "process/web/src/shared/hooks": {
+      "area": "notifications",
+      "votes": 7,
+      "share": 0.88
     },
     "process/web/src/watchlist": {
-      "area": "portals",
+      "area": "reports-analytics",
       "votes": 13,
       "share": 0.81
     },
-    "report/common/src/analytics/barchart": {
-      "area": "reports-analytics",
-      "votes": 7,
-      "share": 1
+    "report": {
+      "area": "forms-fields",
+      "votes": 434,
+      "share": 0.62
     },
-    "report/common/src/analytics/barrowchart": {
-      "area": "reports-analytics",
-      "votes": 7,
-      "share": 1
-    },
-    "report/common/src/analytics/card_report": {
-      "area": "access-governance",
-      "votes": 46,
-      "share": 0.94
+    "report/common/src/analytics": {
+      "area": "forms-fields",
+      "votes": 78,
+      "share": 0.93
     },
     "report/common/src/pivot": {
-      "area": "expressions",
+      "area": "access-governance",
       "votes": 21,
       "share": 1
     },
     "report/common/src/reportview": {
-      "area": "pages-ui",
+      "area": "process-workflow",
       "votes": 7,
       "share": 0.78
     },
     "report/common/src/utils": {
-      "area": "expressions",
+      "area": "access-governance",
       "votes": 12,
       "share": 0.67
     },
-    "report/pwa": {
-      "area": "forms-fields",
-      "votes": 100,
-      "share": 0.64
-    },
     "report/pwa/src/components/drilldown": {
-      "area": "forms-fields",
+      "area": "pages-ui",
       "votes": 7,
       "share": 0.78
     },
-    "report/web/src/apps": {
+    "report/web/src": {
       "area": "forms-fields",
-      "votes": 13,
-      "share": 0.68
+      "votes": 171,
+      "share": 0.66
     },
     "report/web/src/components/drilldown": {
       "area": "forms-fields",
       "votes": 21,
       "share": 0.72
     },
+    "report/web/src/components/share": {
+      "area": "pages-ui",
+      "votes": 8,
+      "share": 1
+    },
     "report/web/src/report_builder/styles": {
-      "area": "portals",
+      "area": "reports-analytics",
       "votes": 32,
       "share": 0.97
     },
-    "report/web/src/report_configure": {
-      "area": "forms-fields",
-      "votes": 28,
-      "share": 0.93
-    },
-    "route": {
-      "area": "forms-fields",
-      "votes": 387,
-      "share": 0.79
+    "report/web/src/reportview/tabular": {
+      "area": "developer-sdk",
+      "votes": 6,
+      "share": 0.86
     },
     "schema": {
       "area": "forms-fields",
-      "votes": 106,
-      "share": 0.71
+      "votes": 122,
+      "share": 0.86
     },
-    "schema/flow_builder_ai_response": {
-      "area": "admin-environments",
-      "votes": 24,
-      "share": 0.6
-    },
-    "server/flow_builder": {
+    "server": {
       "area": "forms-fields",
-      "votes": 60,
-      "share": 0.88
-    },
-    "server/normalizer/markdown": {
-      "area": "pages-ui",
-      "votes": 121,
-      "share": 1
-    },
-    "server/persistence": {
-      "area": "expressions",
-      "votes": 45,
-      "share": 0.96
+      "votes": 1831,
+      "share": 0.75
     },
     "server/serializer/subflow_serializer": {
-      "area": "reports-analytics",
-      "votes": 51,
-      "share": 1
-    },
-    "tests/axiom/schema": {
       "area": "forms-fields",
-      "votes": 6,
-      "share": 1
-    },
-    "tests/axiom/workflow": {
-      "area": "forms-fields",
-      "votes": 117,
-      "share": 1
-    },
-    "tests/mock/mock_client": {
-      "area": "developer-sdk",
-      "votes": 13,
-      "share": 0.68
-    },
-    "tests/sdk": {
-      "area": "pages-ui",
-      "votes": 54,
-      "share": 1
-    },
-    "tests/server": {
-      "area": "datasets",
       "votes": 50,
       "share": 1
     },
-    "tests/test_client": {
-      "area": "forms-fields",
-      "votes": 71,
+    "server/translator": {
+      "area": "pages-ui",
+      "votes": 69,
       "share": 1
     },
-    "utils/constants": {
+    "service": {
       "area": "forms-fields",
-      "votes": 71,
+      "votes": 743,
+      "share": 0.66
+    },
+    "service_template": {
+      "area": "forms-fields",
+      "votes": 99,
       "share": 0.63
     },
-    "utils/page_builder": {
-      "area": "pages-ui",
-      "votes": 48,
-      "share": 0.65
+    "tests/axiom/agent": {
+      "area": "forms-fields",
+      "votes": 174,
+      "share": 0.95
     },
-    "utils/prompts": {
+    "tests/axiom/schema": {
+      "area": "forms-fields",
+      "votes": 9,
+      "share": 1
+    },
+    "tests/mock": {
+      "area": "forms-fields",
+      "votes": 20,
+      "share": 0.87
+    },
+    "tests/normalization": {
+      "area": "forms-fields",
+      "votes": 87,
+      "share": 0.74
+    },
+    "tests/server": {
+      "area": "process-workflow",
+      "votes": 50,
+      "share": 0.93
+    },
+    "tests/test_client": {
+      "area": "forms-fields",
+      "votes": 11,
+      "share": 1
+    },
+    "utils": {
+      "area": "forms-fields",
+      "votes": 391,
+      "share": 0.66
+    },
+    "versioning": {
       "area": "pages-ui",
-      "votes": 15,
-      "share": 0.88
+      "votes": 10,
+      "share": 0.83
+    },
+    "widgets": {
+      "area": "forms-fields",
+      "votes": 3706,
+      "share": 0.6
     },
     "widgets/common/src/charts/docs": {
-      "area": "forms-fields",
+      "area": "pages-ui",
       "votes": 30,
       "share": 1
     },
     "widgets/common/src/libs/filter_utils": {
+      "area": "developer-sdk",
+      "votes": 25,
+      "share": 1
+    },
+    "widgets/pwa/src/datadisplay": {
+      "area": "forms-fields",
+      "votes": 69,
+      "share": 0.87
+    },
+    "widgets/pwa/src/datadisplay/accordion": {
+      "area": "pages-ui",
+      "votes": 10,
+      "share": 1
+    },
+    "widgets/pwa/src/feedback": {
+      "area": "pages-ui",
+      "votes": 22,
+      "share": 0.92
+    },
+    "widgets/pwa/src/inputs/button": {
+      "area": "pages-ui",
+      "votes": 9,
+      "share": 1
+    },
+    "widgets/pwa/src/inputs/datetime": {
+      "area": "pages-ui",
+      "votes": 42,
+      "share": 0.95
+    },
+    "widgets/pwa/src/inputs/dropdown": {
+      "area": "forms-fields",
+      "votes": 21,
+      "share": 1
+    },
+    "widgets/pwa/src/inputs/user_select": {
+      "area": "pages-ui",
+      "votes": 6,
+      "share": 0.6
+    },
+    "widgets/pwa/src/navigation": {
       "area": "forms-fields",
       "votes": 25,
       "share": 1
     },
-    "widgets/pwa/src": {
+    "widgets/pwa/src/others": {
+      "area": "datasets",
+      "votes": 18,
+      "share": 0.67
+    },
+    "widgets/pwa/src/others/ai_suggestion_item": {
       "area": "forms-fields",
-      "votes": 217,
-      "share": 0.68
-    },
-    "widgets/pwa/src/datadisplay/slider": {
-      "area": "developer-sdk",
-      "votes": 23,
-      "share": 1
-    },
-    "widgets/pwa/src/inputs/button": {
-      "area": "expressions",
       "votes": 9,
-      "share": 1
-    },
-    "widgets/pwa/src/inputs/user_select": {
-      "area": "expressions",
-      "votes": 6,
-      "share": 0.6
-    },
-    "widgets/web/src/datadisplay/accordian": {
-      "area": "pages-ui",
-      "votes": 13,
       "share": 1
     },
     "widgets/web/src/datadisplay/accordion_new": {
-      "area": "process-workflow",
+      "area": "developer-sdk",
       "votes": 41,
-      "share": 1
-    },
-    "widgets/web/src/datadisplay/chip": {
-      "area": "forms-fields",
-      "votes": 12,
-      "share": 1
-    },
-    "widgets/web/src/datadisplay/collapse": {
-      "area": "pages-ui",
-      "votes": 11,
-      "share": 1
-    },
-    "widgets/web/src/datadisplay/copy": {
-      "area": "pages-ui",
-      "votes": 8,
-      "share": 0.73
-    },
-    "widgets/web/src/datadisplay/filethumb": {
-      "area": "pages-ui",
-      "votes": 9,
-      "share": 0.9
-    },
-    "widgets/web/src/datadisplay/flow_icon": {
-      "area": "notifications",
-      "votes": 7,
-      "share": 1
-    },
-    "widgets/web/src/datadisplay/label": {
-      "area": "pages-ui",
-      "votes": 6,
-      "share": 1
-    },
-    "widgets/web/src/datadisplay/notes": {
-      "area": "pages-ui",
-      "votes": 10,
-      "share": 1
-    },
-    "widgets/web/src/datadisplay/overflowtext": {
-      "area": "pages-ui",
-      "votes": 10,
-      "share": 1
-    },
-    "widgets/web/src/datadisplay/stacking_accordion": {
-      "area": "pages-ui",
-      "votes": 13,
-      "share": 1
-    },
-    "widgets/web/src/datadisplay/usercard": {
-      "area": "pages-ui",
-      "votes": 8,
-      "share": 1
-    },
-    "widgets/web/src/datadisplay/userchip": {
-      "area": "forms-fields",
-      "votes": 9,
-      "share": 1
-    },
-    "widgets/web/src/datadisplay/usericonlist": {
-      "area": "expressions",
-      "votes": 9,
-      "share": 1
-    },
-    "widgets/web/src/datadisplay/usermenu": {
-      "area": "forms-fields",
-      "votes": 8,
-      "share": 1
-    },
-    "widgets/web/src/datadisplay/usermenuitem": {
-      "area": "forms-fields",
-      "votes": 12,
-      "share": 1
-    },
-    "widgets/web/src/feedback/card_tooltip": {
-      "area": "datasets",
-      "votes": 19,
       "share": 1
     },
     "widgets/web/src/feedback/tooltip": {
       "area": "pages-ui",
-      "votes": 12,
+      "votes": 10,
+      "share": 0.91
+    },
+    "widgets/web/src/inputs/attachment": {
+      "area": "forms-fields",
+      "votes": 21,
       "share": 1
     },
     "widgets/web/src/inputs/button": {
-      "area": "developer-sdk",
-      "votes": 27,
-      "share": 0.75
+      "area": "datasets",
+      "votes": 26,
+      "share": 0.96
     },
     "widgets/web/src/inputs/checkbox": {
       "area": "forms-fields",
@@ -1633,118 +1518,73 @@
     },
     "widgets/web/src/inputs/color": {
       "area": "forms-fields",
-      "votes": 46,
-      "share": 0.96
+      "votes": 33,
+      "share": 1
     },
     "widgets/web/src/inputs/currency": {
-      "area": "forms-fields",
+      "area": "pages-ui",
       "votes": 21,
       "share": 1
     },
     "widgets/web/src/inputs/datetime": {
-      "area": "forms-fields",
-      "votes": 44,
+      "area": "datasets",
+      "votes": 24,
       "share": 0.96
     },
-    "widgets/web/src/inputs/dropdown": {
+    "widgets/web/src/inputs/document_editor": {
       "area": "forms-fields",
-      "votes": 100,
-      "share": 0.66
+      "votes": 174,
+      "share": 0.8
+    },
+    "widgets/web/src/inputs/dropdowntarget": {
+      "area": "forms-fields",
+      "votes": 13,
+      "share": 1
     },
     "widgets/web/src/inputs/editableinput": {
-      "area": "reports-analytics",
+      "area": "expressions",
       "votes": 18,
       "share": 1
     },
     "widgets/web/src/inputs/emojipicker": {
       "area": "forms-fields",
-      "votes": 23,
+      "votes": 15,
       "share": 1
     },
-    "widgets/web/src/inputs/number": {
-      "area": "datasets",
-      "votes": 24,
+    "widgets/web/src/inputs/iconpicker": {
+      "area": "forms-fields",
+      "votes": 16,
       "share": 1
     },
     "widgets/web/src/inputs/search": {
       "area": "forms-fields",
-      "votes": 24,
-      "share": 1
-    },
-    "widgets/web/src/inputs/signature": {
-      "area": "notifications",
-      "votes": 8,
-      "share": 1
-    },
-    "widgets/web/src/inputs/singleline": {
-      "area": "process-workflow",
-      "votes": 27,
-      "share": 0.93
-    },
-    "widgets/web/src/inputs/userselect": {
-      "area": "forms-fields",
-      "votes": 29,
-      "share": 0.85
-    },
-    "widgets/web/src/layouts/flow_nav": {
-      "area": "expressions",
-      "votes": 23,
-      "share": 0.96
-    },
-    "widgets/web/src/layouts/guidedpage": {
-      "area": "datasets",
       "votes": 10,
       "share": 1
     },
-    "widgets/web/src/layouts/settingspage": {
-      "area": "datasets",
-      "votes": 13,
-      "share": 1
-    },
-    "widgets/web/src/layouts/sharesettings": {
+    "widgets/web/src/inputs/singleline": {
       "area": "forms-fields",
-      "votes": 29,
+      "votes": 28,
       "share": 1
     },
-    "widgets/web/src/layouts/topnav": {
-      "area": "developer-sdk",
-      "votes": 21,
+    "widgets/web/src/inputs/slider": {
+      "area": "pages-ui",
+      "votes": 10,
       "share": 1
-    },
-    "widgets/web/src/navigation": {
-      "area": "datasets",
-      "votes": 17,
-      "share": 0.71
     },
     "widgets/web/src/others": {
-      "area": "pages-ui",
+      "area": "process-workflow",
       "votes": 11,
-      "share": 0.61
-    },
-    "widgets/web/src/others/markdown": {
-      "area": "datasets",
-      "votes": 6,
-      "share": 1
+      "share": 0.85
     },
     "widgets/web/src/properties": {
-      "area": "forms-fields",
-      "votes": 80,
-      "share": 0.63
-    },
-    "widgets/web/src/properties/general": {
-      "area": "notifications",
-      "votes": 18,
-      "share": 0.78
+      "area": "pages-ui",
+      "votes": 51,
+      "share": 0.73
     },
     "widgets/web/src/properties/header": {
-      "area": "notifications",
-      "votes": 9,
-      "share": 0.9
-    },
-    "widgets/web/src/properties/multidimension": {
-      "area": "notifications",
-      "votes": 7,
-      "share": 0.64
+      "area": "expressions",
+      "votes": 10,
+      "share": 1
     }
   }
 }
