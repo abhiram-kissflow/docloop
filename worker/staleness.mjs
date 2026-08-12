@@ -21,7 +21,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { api, requireEnv, claimJob } from './api.mjs';
+import { api, requireEnv, withJob } from './api.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PATH_AREAS = path.join(HERE, '..', 'fixtures', 'path-areas.json');
@@ -148,53 +148,53 @@ async function main() {
 
   const prefixes = JSON.parse(fs.readFileSync(PATH_AREAS, 'utf8')).prefixes;
 
-  const job = await claimJob('staleness', auth);
-  if (!job) {
-    console.error('[staleness] no pending staleness job');
-    return;
-  }
+  // withJob, not claimJob: anything that throws past the claim must still report, or the row
+  // stays `running` forever and nothing reaps it.
+  const ran = await withJob('staleness', auth, async (job) => {
+    const { files = [], repo = null, commits = 0, truncated = false } = job.payload || {};
+    const ranked = rankAreas(files, prefixes);
+    const unmapped = files.filter((f) => areasForFile(f, prefixes).length === 0).length;
+    console.error(
+      `[staleness] job ${job.id}: ${files.length} files${truncated ? ' (TRUNCATED at the webhook cap)' : ''}, ` +
+        `${ranked.length} area(s), ${unmapped} file(s) mapped to no area`
+    );
 
-  const { files = [], repo = null, commits = 0, truncated = false } = job.payload || {};
-  const ranked = rankAreas(files, prefixes);
-  const unmapped = files.filter((f) => areasForFile(f, prefixes).length === 0).length;
-  console.error(
-    `[staleness] job ${job.id}: ${files.length} files${truncated ? ' (TRUNCATED at the webhook cap)' : ''}, ` +
-      `${ranked.length} area(s), ${unmapped} file(s) mapped to no area`
-  );
+    const { articles = [] } = await api('/api/articles', auth);
+    const picks = pickArticles(ranked, articles, flags.max);
 
-  const { articles = [] } = await api('/api/articles', auth);
-  const picks = pickArticles(ranked, articles, flags.max);
+    const suggestions = picks.map(({ article, area, files: hits }) => ({
+      type: 'update',
+      article_external_id: article.external_id,
+      source: 'staleness',
+      body: buildBody({ area, files: hits, repo, commits }),
+    }));
 
-  const suggestions = picks.map(({ article, area, files: hits }) => ({
-    type: 'update',
-    article_external_id: article.external_id,
-    source: 'staleness',
-    body: buildBody({ area, files: hits, repo, commits }),
-  }));
+    if (flags.dryRun) {
+      console.log(JSON.stringify({ job: job.id, areas: ranked.map((r) => `${r.area}:${r.files.length}`), suggestions }, null, 2));
+      console.error('[staleness] --dry-run: nothing was POSTed and the job stays claimed');
+      return;
+    }
 
-  if (flags.dryRun) {
-    console.log(JSON.stringify({ job: job.id, areas: ranked.map((r) => `${r.area}:${r.files.length}`), suggestions }, null, 2));
-    console.error('[staleness] --dry-run: nothing was POSTed and the job stays claimed');
-    return;
-  }
+    let created = 0;
+    let unresolved = 0;
+    if (suggestions.length) {
+      const r = await api('/api/suggestions', auth, { method: 'POST', body: JSON.stringify({ suggestions }) });
+      created = r.created;
+      unresolved = r.unresolved;
+    }
+    console.error(`[staleness] raised ${created} suggestion(s)${unresolved ? `, ${unresolved} with an unresolved article link` : ''}`);
 
-  let created = 0;
-  let unresolved = 0;
-  if (suggestions.length) {
-    const r = await api('/api/suggestions', auth, { method: 'POST', body: JSON.stringify({ suggestions }) });
-    created = r.created;
-    unresolved = r.unresolved;
-  }
-  console.error(`[staleness] raised ${created} suggestion(s)${unresolved ? `, ${unresolved} with an unresolved article link` : ''}`);
-
-  await api('/api/results', auth, {
-    method: 'POST',
-    body: JSON.stringify({
-      job_id: Number(job.id),
-      status: 'done',
-      result: { files: files.length, unmapped, areas: ranked.map((r) => ({ area: r.area, files: r.files.length })), created, unresolved },
-    }),
+    await api('/api/results', auth, {
+      method: 'POST',
+      body: JSON.stringify({
+        job_id: Number(job.id),
+        status: 'done',
+        result: { files: files.length, unmapped, areas: ranked.map((r) => ({ area: r.area, files: r.files.length })), created, unresolved },
+      }),
+    });
+    return true;
   });
+  if (ran === null) console.error('[staleness] no pending staleness job');
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {

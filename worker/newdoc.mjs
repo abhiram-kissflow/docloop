@@ -25,7 +25,7 @@
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { api, requireEnv, claimJob } from './api.mjs';
+import { api, requireEnv, withJob } from './api.mjs';
 import { capRawOutput, extractJson, piiRule, renderArticleIndex, resolveClaudeBin, runClaude } from './index.mjs';
 
 export function parseFlags(argv = process.argv.slice(2)) {
@@ -145,57 +145,56 @@ async function main() {
   }
 
   const auth = requireEnv();
-  const job = await claimJob('newdoc', auth);
-  if (!job) {
-    console.error('[newdoc] no pending newdoc job');
-    return;
-  }
+  // withJob, not claimJob: a throw past the claim must still report, or the row stays `running`
+  // forever and every later run walks past it.
+  const ran = await withJob('newdoc', auth, async (job) => {
 
-  // The index is a PRECONDITION here, not an enhancement — see the header. Refuse rather than
-  // propose creating documentation while blind to what exists.
-  const { articles = [] } = await api('/api/articles', auth);
-  if (!articles.length) {
+    // The index is a PRECONDITION here, not an enhancement — see the header. Refuse rather than
+    // propose creating documentation while blind to what exists.
+    const { articles = [] } = await api('/api/articles', auth);
+    // Throw and let withJob record it. Reporting here as well would write the row twice and
+    // invites the two messages to drift apart.
+    if (!articles.length) {
+      throw new Error('article index is empty; refusing to propose documentation while blind to it');
+    }
+    const index = renderArticleIndex(articles);
+    console.error(`[newdoc] job ${job.id}: release ${job.payload?.tag || '?'}, ${articles.length} articles in the index`);
+
+    const bin = resolveClaudeBin();
+    const raw = capRawOutput(await runClaude(bin, buildPrompt(job.payload || {}, index, flags.max)));
+    const parsed = extractJson(raw);
+    const { suggestions, dropped } = scrubSuggestions(parsed.suggestions, flags.max);
+    if (dropped.length) {
+      console.error(`[newdoc] dropped ${dropped.length} suggestion(s): ${dropped.map((d) => d.rule).join(', ')}`);
+    }
+    console.error(`[newdoc] ${suggestions.length} suggestion(s) survived`);
+
+    if (flags.dryRun) {
+      console.log(JSON.stringify({ job: job.id, suggestions }, null, 2));
+      console.error('[newdoc] --dry-run: nothing was POSTed and the job stays claimed');
+      return;
+    }
+
+    let created = 0;
+    let unresolved = 0;
+    if (suggestions.length) {
+      const r = await api('/api/suggestions', auth, { method: 'POST', body: JSON.stringify({ suggestions }) });
+      created = r.created;
+      unresolved = r.unresolved;
+    }
+    console.error(`[newdoc] raised ${created} suggestion(s)${unresolved ? `, ${unresolved} with an unresolved article link` : ''}`);
+
     await api('/api/results', auth, {
       method: 'POST',
-      body: JSON.stringify({ job_id: Number(job.id), status: 'failed', result: { error: 'article index empty — refusing to propose new docs blind' } }),
+      body: JSON.stringify({
+        job_id: Number(job.id),
+        status: 'done',
+        result: { tag: job.payload?.tag ?? null, proposed: suggestions.length, dropped: dropped.length, created, unresolved },
+      }),
     });
-    throw new Error('article index is empty; refusing to propose documentation without it');
-  }
-  const index = renderArticleIndex(articles);
-  console.error(`[newdoc] job ${job.id}: release ${job.payload?.tag || '?'}, ${articles.length} articles in the index`);
-
-  const bin = resolveClaudeBin();
-  const raw = capRawOutput(await runClaude(bin, buildPrompt(job.payload || {}, index, flags.max)));
-  const parsed = extractJson(raw);
-  const { suggestions, dropped } = scrubSuggestions(parsed.suggestions, flags.max);
-  if (dropped.length) {
-    console.error(`[newdoc] dropped ${dropped.length} suggestion(s): ${dropped.map((d) => d.rule).join(', ')}`);
-  }
-  console.error(`[newdoc] ${suggestions.length} suggestion(s) survived`);
-
-  if (flags.dryRun) {
-    console.log(JSON.stringify({ job: job.id, suggestions }, null, 2));
-    console.error('[newdoc] --dry-run: nothing was POSTed and the job stays claimed');
-    return;
-  }
-
-  let created = 0;
-  let unresolved = 0;
-  if (suggestions.length) {
-    const r = await api('/api/suggestions', auth, { method: 'POST', body: JSON.stringify({ suggestions }) });
-    created = r.created;
-    unresolved = r.unresolved;
-  }
-  console.error(`[newdoc] raised ${created} suggestion(s)${unresolved ? `, ${unresolved} with an unresolved article link` : ''}`);
-
-  await api('/api/results', auth, {
-    method: 'POST',
-    body: JSON.stringify({
-      job_id: Number(job.id),
-      status: 'done',
-      result: { tag: job.payload?.tag ?? null, proposed: suggestions.length, dropped: dropped.length, created, unresolved },
-    }),
+    return true;
   });
+  if (ran === null) console.error('[newdoc] no pending newdoc job');
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {

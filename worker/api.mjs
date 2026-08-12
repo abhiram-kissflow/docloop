@@ -71,3 +71,44 @@ export async function claimJob(kind, auth) {
   }
   return job;
 }
+
+/**
+ * Claim a job, run the work, and ALWAYS report the outcome — including a throw.
+ *
+ * Found by the session building whatsnew, running it rather than reading it: claimJob() sets the
+ * row to `running`, and nothing in this system reaps a stuck row. So any throw after the claim —
+ * an unparseable draft, a dead API, a missing binary — left the job claimed forever and invisible.
+ * Every later run walked straight past it. staleness.mjs and newdoc.mjs both had that shape.
+ *
+ * The failure is reported BEFORE the error is re-thrown, so the operator sees it in the job row
+ * and not only in a log nobody is tailing. Reporting is itself best-effort: if the API is what
+ * broke, there is nowhere to report to, and losing the original error to a second failure would
+ * be worse than a stuck row.
+ *
+ * §6.4: the recorded reason is our own error message, bounded. Model output never reaches an
+ * error message by construction — extractJson reports lengths, not content.
+ *
+ * @param {string} kind
+ * @param {{apiUrl: string, apiKey: string}} auth
+ * @param {(job: any) => Promise<any>} fn
+ * @returns {Promise<any|null>} fn's result, or null when there was no job to claim
+ */
+export async function withJob(kind, auth, fn) {
+  const job = await claimJob(kind, auth);
+  if (!job) return null;
+  try {
+    return await fn(job);
+  } catch (err) {
+    await api('/api/results', auth, {
+      method: 'POST',
+      body: JSON.stringify({
+        job_id: Number(job.id),
+        status: 'failed',
+        result: { error: String(err?.message ?? err).slice(0, 500) },
+      }),
+    }).catch(() => {
+      console.error(`[worker] job ${job.id} failed AND could not be reported — it stays 'running'`);
+    });
+    throw err;
+  }
+}
