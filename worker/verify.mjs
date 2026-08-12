@@ -754,8 +754,13 @@ await ok('whatsnew: a compliant entry trips nothing', () => {
 });
 
 await ok("whatsnew: the skill's field rules are enforced, not suggested", () => {
-  wnProblem({ hs_name: 'Editable Grid' }, 'should be 5-8');
-  wnProblem({ hs_name: 'Introducing Kissflow Portals for External Users and Vendors and Partners' }, 'should be 5-8');
+  // The skill's own examples are 2-4 words, so those must PASS — the stated "5-8" would flag
+  // every title the skill teaches, and a checker that cries wolf is ignored wholesale.
+  for (const good of ['Editable Grid', 'AI-Powered Formula Builder', 'Introducing Kissflow Portals']) {
+    assert.deepEqual(checkEntry({ ...WN_GOOD, hs_name: good }), [], `"${good}" is a title the skill teaches`);
+  }
+  wnProblem({ hs_name: 'Grid' }, 'should be 2-8');
+  wnProblem({ hs_name: 'Introducing Kissflow Portals for External Users and Vendors and Partners' }, 'should be 2-8');
   wnProblem({ hs_name: 'Field Level Access Control for Forms.' }, 'period');
   wnProblem({ hs_name: 'Field Level Access Control Ships Now!' }, 'exclamation');
   wnProblem({ short_description: WN_GOOD.short_description.repeat(4) }, 'under 30');
@@ -842,6 +847,13 @@ await ok('whatsnew: the suggestion body survives the §6.1 guard it will be POST
   const clean = buildWhatsNewBody(WN_GOOD, { source: 'release', ref: 'v2.1.0' }, []);
   assert.equal(piiRule(clean), null);
   assert.ok(clean.includes(WN_GOOD.hs_name) && clean.includes(WN_GOOD.short_description));
+
+  // REGRESSION: the body opened with `**hs_name:**` and the queue derives a row title from the
+  // first heading, so the row was titled `hs_name:` — the field label, with the headline hidden
+  // on the next line. The most reviewable item in the queue rendered as a null. The headline is
+  // the first line now, and this is what keeps it there.
+  assert.equal(clean.split('\n')[0], `## ${WN_GOOD.hs_name}`, 'the headline must be the first line');
+  assert.ok(!clean.split('\n')[0].includes('hs_name:'), 'the first line must not be a field label');
 
   // The skill invites a docs link, so the allowed-host path has to hold: `help` is a PUBLIC_LABEL
   // and kissflow.com is a bare registrable domain, so this survives where a tenant host would not.

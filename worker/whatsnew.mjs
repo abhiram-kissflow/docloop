@@ -89,8 +89,15 @@ export function checkEntry(entry) {
   const short = String(entry?.short_description ?? '');
   const body = String(entry?.description ?? '');
 
+  // The skill's prose says "5-8 words max", but EVERY example it holds up as good is 2-4:
+  // "Editable Grid", "AI-Powered Formula Builder", "SAP S/4HANA Connector", "Revamped File
+  // Previewer", "Introducing Kissflow Portals", "Field-Level Access Control". Enforcing the
+  // stated rule flagged the model for producing exactly the title the skill teaches, which is
+  // the failure mode this checker exists to avoid — one that cries wolf gets ignored wholesale.
+  // So the EXAMPLES are treated as the real rule and the upper bound is kept: 2-8. The prose
+  // should be corrected at the source; this is the reading that matches practice until it is.
   const nameWords = words(name).length;
-  if (nameWords < 5 || nameWords > 8) problems.push(`title is ${nameWords} words, should be 5-8`);
+  if (nameWords < 2 || nameWords > 8) problems.push(`title is ${nameWords} words, should be 2-8`);
   if (/[.!]/.test(name)) problems.push('title contains a period or exclamation mark');
 
   const shortWords = words(short).length;
@@ -212,6 +219,12 @@ export function parseEntry(raw) {
  * The suggestion body. The three fields are reproduced verbatim so a writer can copy them into
  * HubSpot, and any checklist problems are stated up front rather than buried — an entry that
  * needs a fix is more useful than one that looks finished and is not.
+ *
+ * THE HEADLINE IS THE FIRST LINE. The queue derives a row title from the first heading in the
+ * body, so a body that opened with `**hs_name:**` titled the row `hs_name:` — the field label,
+ * with the actual headline hidden on the line below. The most reviewable item in the queue read
+ * as a null. The entry is read HERE first and copied into HubSpot second, so it leads with what
+ * it is; the field labels that matter only at paste time come after.
  */
 export function buildBody(entry, feature, problems = []) {
   const ref = feature.ref ? ` (\`${feature.ref}\`)` : '';
@@ -221,6 +234,10 @@ export function buildBody(entry, feature, problems = []) {
       : `A release${ref} was published.`;
 
   return [
+    `## ${entry.hs_name}`,
+    '',
+    entry.short_description,
+    '',
     `${trigger} Here is a draft What's New entry for kissflow.com/whats-new/, written to the`,
     'kf-whatsnew-writer format. Nothing is published — review, edit, and post it yourself.',
     '',
@@ -228,6 +245,8 @@ export function buildBody(entry, feature, problems = []) {
       ? ['**Check before posting:**', ...problems.map((p) => `- ${p}`), '']
       : ['The draft passes every mechanical check in the skill checklist. The judgement calls —',
          'is this worth announcing, is the benefit the real one — are still yours.', '']),
+    '**Fields to paste into HubSpot**',
+    '',
     '**hs_name:**',
     entry.hs_name,
     '',
