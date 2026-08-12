@@ -122,6 +122,30 @@ Errors: `{ "error": "<message>" }` with the status code below. Never leak stack 
 - `200 → { ok: true, id: <events.id> }`
 - `401 → { error: "bad signature" }` on missing/invalid signature.
 
+- A `push` event on the repository's **default branch** additionally enqueues a `staleness` job
+  (Workstream B1): the union of `added` + `modified` + `removed` across every commit, deduped and
+  capped at 500 files, stored as `jobs.payload` alongside `repo`, `ref`, `after`, `commits` and a
+  `truncated` flag. Other event types, other branches, and pushes touching no files enqueue nothing.
+  The handler does no mapping — that needs `fixtures/path-areas.json` and belongs in the worker,
+  and a webhook that does real work times out on a monorepo-sized push.
+- `200 → { ok: true, id, job }` — `job` is the staleness job id, or `null`.
+
+### `POST /api/suggestions`
+- Auth: `Authorization: Bearer <WORKER_API_KEY>`.
+- **Not** `/api/suggestions/[id]`, which is the dashboard's approve/dismiss action and is
+  cookie-gated. Same prefix, deliberately different callers. `PUBLIC_PATHS` matches paths
+  **exactly**, which is the only reason adding this one does not expose the other; if that Set ever
+  becomes a prefix list, approve/dismiss opens to anyone holding the URL.
+- Body: `{ suggestions: [ { type, article_external_id?, source?, body } ] }`, max 100 (§6.6).
+- Standalone, article-linked suggestions. B1 produces these: they come from a code change rather
+  than a cluster of tickets, so there is no pattern, label or questionnaire to attach them to.
+  `/api/ingest/patterns` stays pattern-shaped rather than growing a second meaning.
+- `article_external_id` resolves via subselect; an id that matches nothing stores `NULL` rather
+  than failing the batch, and the count comes back as `unresolved` so a mapping that has gone stale
+  is visible instead of silent.
+- `200 → { ok: true, created, unresolved }` · `400` on any §6.1 or schema violation, whole request
+  rejected, never partially accepted.
+
 ### `POST /api/hooks/intercom`
 - Endpoint exists from day one; **signature verification is a documented TODO**
   (needs Intercom developer-app setup — PLAN §8). Store and acknowledge.

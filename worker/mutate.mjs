@@ -29,6 +29,10 @@ const REPO = path.resolve(HERE, '..');
 const SOURCES = [
   'worker/index.mjs',
   'worker/verify.mjs',
+  // verify.mjs imports the B1 pure helpers from here. Not a mutation target itself — it holds no
+  // §6.1 rule — but the baseline cannot run without it, and a broken baseline reports as a failed
+  // mutation test, which is a confusing way to learn you forgot a file.
+  'worker/staleness.mjs',
   'web/lib/pure.mjs',
   'web/verify.mjs',
   'fixtures/pii.json',

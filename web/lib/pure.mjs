@@ -405,3 +405,67 @@ export function validateIngest(body) {
     },
   };
 }
+
+/**
+ * Validate POST /api/suggestions (CONTRACT §3) — standalone, article-linked suggestions.
+ *
+ * B1 produces suggestions that are NOT pattern-shaped: they come from a code change, not from a
+ * cluster of tickets, so there is no label, description or questionnaire to hang them on. Rather
+ * than bend the ingest endpoint into two shapes, this is its own narrow one.
+ *
+ * Same §6.1 guard as everything else, and the same all-or-nothing rule: one bad string rejects the
+ * whole request. Partial acceptance would leave the caller unable to say what was stored.
+ *
+ * @param {unknown} body
+ * @returns {{ ok: true, value: any } | { ok: false, error: string }}
+ */
+export function validateSuggestions(body) {
+  const bad = (error) => ({ ok: false, error });
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return bad('body must be an object');
+  const b = /** @type {any} */ (body);
+
+  if (!Array.isArray(b.suggestions)) return bad('suggestions must be an array');
+  if (b.suggestions.length === 0) return bad('suggestions must not be empty');
+  // Same reasoning as the patterns[] cap: every other bound here is per-element, so an unbounded
+  // array passes all of them (CONTRACT §6.6).
+  if (b.suggestions.length > 100) return bad('suggestions exceeds the 100-entry cap (CONTRACT §6.6)');
+
+  /** @type {[string, string][]} */ const fields = [];
+  /** @type {any[]} */ const suggestions = [];
+
+  for (let i = 0; i < b.suggestions.length; i++) {
+    const s = b.suggestions[i];
+    const at = `suggestions[${i}]`;
+    if (!s || typeof s !== 'object' || Array.isArray(s)) return bad(`${at} must be an object`);
+    if (!isStr(s.type) || !['update', 'create', 'media'].includes(s.type)) {
+      return bad(`${at}.type must be one of update|create|media`);
+    }
+    if (!isStr(s.body) || !s.body.trim()) return bad(`${at}.body must be a non-empty string`);
+    if (s.body.length > LIMITS.suggestionBody) {
+      return bad(`${at}.body exceeds the ${LIMITS.suggestionBody}-char cap (CONTRACT §6.6)`);
+    }
+    let ref = null;
+    if (s.article_external_id !== undefined && s.article_external_id !== null) {
+      if (!isStr(s.article_external_id)) return bad(`${at}.article_external_id must be a string`);
+      if (s.article_external_id.length > 500) return bad(`${at}.article_external_id exceeds the 500-char cap`);
+      ref = s.article_external_id;
+    }
+    // A `source` label so the dashboard can say where a suggestion came from — B1 or the miner.
+    let source = 'staleness';
+    if (s.source !== undefined && s.source !== null) {
+      if (!isStr(s.source) || s.source.length > 40) return bad(`${at}.source must be a string under 40 chars`);
+      source = s.source;
+    }
+    suggestions.push({ type: s.type, body: s.body, article_external_id: ref, source });
+    fields.push([`${at}.body`, s.body]);
+    if (ref !== null) fields.push([`${at}.article_external_id`, ref]);
+    fields.push([`${at}.source`, source]);
+  }
+
+  for (const [path, value] of fields) {
+    const rule = piiRule(value);
+    if (rule) return bad(`PII guard: ${path} trips rule ${rule} (CONTRACT §6.1)`);
+  }
+
+  return { ok: true, value: { suggestions } };
+}

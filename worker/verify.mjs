@@ -25,6 +25,7 @@ import {
   applyAuditVerdict,
   auditPatterns,
 } from './index.mjs';
+import { areasForFile, rankAreas, pickArticles, buildBody } from './staleness.mjs';
 
 let checks = 0;
 // async-aware so the §6.3 fail-closed paths can be exercised; still exits non-zero on the
@@ -581,3 +582,65 @@ await ok('buildPrompt: carries window/top and states the PII rule', () => {
 });
 
 console.log(`\n${checks} checks passed`);
+
+// ---- B1 staleness (CONTRACT §3, BLUEPRINT §5) --------------------------------
+
+const PREFIXES = {
+  'components/web/src/form': { area: 'forms-fields', votes: 90, share: 0.8 },
+  'components/web/src/form/design': { area: 'pages-ui', votes: 20, share: 0.7 },
+  'components/web/src/flow_dashboard': { area: 'reports-analytics', votes: 30, share: 0.9 },
+};
+
+await ok('staleness: longest prefix wins, and a prefix must end on a path boundary', () => {
+  // The more specific directory knows better than its parent.
+  assert.deepEqual(areasForFile('components/web/src/form/design/constant.js', PREFIXES), ['pages-ui']);
+  assert.deepEqual(areasForFile('components/web/src/form/table/row.ts', PREFIXES), ['forms-fields']);
+  // Boundary: `.../form` must NOT swallow `.../formatting`. Without the boundary check a rename
+  // silently reassigns a whole directory to the wrong area.
+  assert.deepEqual(areasForFile('components/web/src/formatting/x.ts', PREFIXES), []);
+  assert.deepEqual(areasForFile('server/unrelated/thing.go', PREFIXES), []);
+  assert.deepEqual(areasForFile('', PREFIXES), []);
+});
+
+await ok('staleness: areas rank by how many files hit them', () => {
+  const ranked = rankAreas(
+    ['components/web/src/form/a.ts', 'components/web/src/form/b.ts', 'components/web/src/flow_dashboard/c.tsx', 'no/mapping/here.ts'],
+    PREFIXES
+  );
+  assert.deepEqual(ranked.map((r) => r.area), ['forms-fields', 'reports-analytics']);
+  assert.equal(ranked[0].files.length, 2);
+});
+
+await ok('staleness: articles are picked by area, capped, and never duplicated', () => {
+  const articles = [
+    { external_id: 'a1', title: 'Table', features: ['area:forms-fields'] },
+    { external_id: 'a2', title: 'Button', features: ['area:forms-fields'] },
+    { external_id: 'a3', title: 'Reports overview', features: ['area:reports-analytics'] },
+    { external_id: 'a4', title: 'Unrelated', features: ['area:portals'] },
+    { external_id: 'a5', title: 'Both', features: ['area:forms-fields', 'area:reports-analytics'] },
+  ];
+  const ranked = rankAreas(['components/web/src/form/a.ts', 'components/web/src/form/b.ts', 'components/web/src/flow_dashboard/c.tsx'], PREFIXES);
+  const picked = pickArticles(ranked, articles, 10);
+  // forms-fields first (2 files beat 1), its articles by title — Both < Button < Table — then
+  // reports-analytics. Stable ordering matters: repeated pushes to one area must surface the same
+  // articles rather than a rotating subset.
+  assert.deepEqual(picked.map((p) => p.article.external_id), ['a5', 'a2', 'a1', 'a3']);
+  // An article in two affected areas is raised ONCE, under the most-affected one.
+  assert.equal(picked.filter((p) => p.article.external_id === 'a5').length, 1);
+  assert.equal(picked.find((p) => p.article.external_id === 'a5').area, 'forms-fields');
+  // The cap is honoured.
+  assert.equal(pickArticles(ranked, articles, 2).length, 2);
+});
+
+await ok('staleness: the body survives the PII guard and never overclaims', () => {
+  const body = buildBody({
+    area: 'forms-fields',
+    files: ['components/web/src/comment/draft.store.ts', 'components/common/src/form/table/row.model.ts'],
+    repo: 'kissflow/kf-xg-frontend',
+    commits: 3,
+  });
+  // Full paths with multi-dot filenames must NOT trip the guard — that is exactly what 9b2f9df fixed.
+  assert.equal(piiRule(body), null, 'a body naming real repo paths must survive §6.1');
+  assert.match(body, /may need/, 'B1 states a doc MAY need review, never that it IS stale');
+  assert.ok(!/is stale|out of date/i.test(body), 'no staleness assertion without reading the doc');
+});

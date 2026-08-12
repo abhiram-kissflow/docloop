@@ -22,6 +22,11 @@ export const PUBLIC_PATHS: ReadonlySet<string> = new Set([
   '/api/results',
   '/api/ingest/patterns',
   '/api/articles',
+  // POST /api/suggestions — B1 writing article-linked suggestions. EXACT match only, which is
+  // what keeps /api/suggestions/[id] (approve/dismiss) private: PUBLIC_PATHS is a Set of exact
+  // paths, never a prefix list. If this ever becomes a prefix, the approve/dismiss action opens
+  // to anyone with the URL. It is the one entry here whose sibling path must stay gated.
+  '/api/suggestions',
 
   '/favicon.ico',
   '/robots.txt',
