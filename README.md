@@ -221,6 +221,62 @@ They also run on GitHub for every push, so a red tick on a commit means one of t
 purpose, one rule at a time, and requires the self-checks to notice. A test suite that still
 passes when the thing it guards is broken is worse than no tests, because it is believed.
 
+## Deploy it
+
+It runs on this Mac today. To put it on the internet, it goes to **Google Cloud Run** in the
+`kf-dev-research-ai` project, with **Cloud SQL Postgres** beside it. Vercel was the original target
+and was never actually used, so nothing is being migrated.
+
+> **Not yet run.** Every other command in this file was executed before it was written. This one
+> has not been, because it needs an interactive `gcloud auth login` that an agent session cannot
+> perform. Treat this section as reviewed and unverified until the first real run.
+
+```bash
+gcloud auth login          # you must run this yourself; it opens a browser
+./scripts/deploy-gcp.sh
+```
+
+The script is idempotent. Running it twice does not create a second database or a second service,
+and it never drops anything.
+
+Afterwards there are two manual steps it prints for you, because both are one-way: applying
+`web/schema.sql` to the new database, and pointing `DOCLOOP_API_URL` in `worker/.env.local` at the
+deployed URL. The workers keep running on this Mac either way; only the web half moves.
+
+### What it costs
+
+Deliberately the smallest tier of everything, because this is a proof of concept.
+
+| Piece | Setting | Cost |
+|---|---|---|
+| Cloud Run | scales to zero, max 2 instances, 512Mi | Nothing while idle |
+| Cloud SQL | `db-f1-micro`, 10GB HDD, zonal, no HA | Roughly **$8-10 a month** |
+
+Cloud SQL is the whole running cost, because unlike Cloud Run it cannot scale to zero. To stop
+paying for it without losing the data:
+
+```bash
+gcloud sql instances patch docloop-pg --activation-policy=NEVER   # stop
+gcloud sql instances patch docloop-pg --activation-policy=ALWAYS  # start again
+```
+
+Region is `us-central1`, which is GCP's cheapest standard region. If the data needs to sit in
+India instead, run `REGION=asia-south1 ./scripts/deploy-gcp.sh` — one variable, and about 15-20%
+more.
+
+**Backups are off.** That is affordable only because every row here is reproducible: articles from
+`scripts/import-docs.mjs`, area tags from `scripts/map-doc-areas.mjs`, suggestions from re-running
+the workers. If that stops being true, turn them on:
+`gcloud sql instances patch docloop-pg --backup-start-time=03:00`.
+
+**Secrets never sit in a readable field.** The database password is generated during deploy, never
+printed, and stored in Secret Manager. `web/.env.local` is excluded from the upload by
+`web/.gcloudignore`, so it is never baked into a container image.
+
+The service is deliberately public, which is not an oversight: GitHub cannot present a Google
+identity when it posts a webhook. Each route defends itself instead — an HMAC signature on the
+GitHub hook, bearer tokens on the worker routes, and the shared password on everything else.
+
 ## Rules that do not bend
 
 - **Nothing publishes automatically.** Every suggestion ends at a human decision.
@@ -251,9 +307,12 @@ twice and is recorded in the amendment notes in §6.
 ```
 web/       Next.js App Router. Receives webhooks, stores events, serves the review dashboard.
            Deploys to Google Cloud Run; the database is Cloud SQL Postgres in the same project.
-worker/    Plain Node, zero dependencies. Does the work Vercel cannot: Claude Code, Playwright, ffmpeg.
+worker/    Plain Node, zero dependencies. Runs on this Mac: Claude Code, Playwright, ffmpeg.
 scripts/   One-off imports and index maintenance. Each emits SQL; you pipe it to psql.
 fixtures/  The taxonomy, the code and category maps, and shared test fixtures.
 ```
 
-The split exists because the worker's tooling cannot run on Vercel, not because of scale.
+The split exists because of what the worker needs, not because of scale. It shells out to Claude
+Code with your skills and your logged-in session, and later to Playwright and ffmpeg for media.
+None of that belongs in a request-scoped container, on Cloud Run or anywhere else — so the web
+half is hosted and the worker stays on a machine that has the toolchain and the credentials.
