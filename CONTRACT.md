@@ -157,8 +157,14 @@ Errors: `{ "error": "<message>" }` with the status code below. Never leak stack 
 - Event type from body `type` field, else `"unknown"`.
 - `200 → { ok: true, id }` / `401 → { error: "unauthorized" }`
 
-### `GET /api/jobs?limit=N`
+### `GET /api/jobs?limit=N&kind=K`
 - Auth: `Authorization: Bearer <WORKER_API_KEY>`. `limit` default 1, max 10.
+- `kind` filters **inside the claim**, and is not optional in practice once more than one job kind
+  exists. Without it this returns the oldest pending job of ANY kind — and a worker that claims
+  another worker's job has already taken it: the row is `running` before the mismatch is noticed,
+  leaving nothing to do but fail work that belonged to someone else. With three kinds
+  (`staleness`, `newdoc`, `whatsnew`) a staleness poll could destroy a pending whatsnew job,
+  unattended, on a launchd timer. Omitting `kind` still means "any kind", for a generic poller.
 - Atomically claims pending jobs (SQL above).
 - `200 → { jobs: [ { id, kind, payload } ] }`
 

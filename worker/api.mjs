@@ -49,7 +49,12 @@ export function requireEnv() {
  * @returns {Promise<any|null>} the job, or null when there is nothing to do
  */
 export async function claimJob(kind, auth) {
-  const { jobs } = await api('/api/jobs?limit=1', auth);
+  // Ask for OUR kind. Claiming by kind is the fix for a real defect: /api/jobs used to return the
+  // oldest pending job of any kind, so a staleness poll could claim a whatsnew job — and by the
+  // time the mismatch was noticed the row was already `running`, leaving nothing to do but fail
+  // work that belonged to another worker. The mismatch branch below is now a belt-and-braces
+  // guard against an older server, not the normal path.
+  const { jobs } = await api(`/api/jobs?limit=1&kind=${encodeURIComponent(kind)}`, auth);
   const job = jobs?.[0];
   if (!job) return null;
   if (job.kind !== kind) {

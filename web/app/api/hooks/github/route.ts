@@ -55,10 +55,14 @@ export async function POST(req: Request) {
   try {
     const id = await insertEvent('github', type, payload);
 
+    // A list, because one event can raise more than one job: a published release produces both a
+    // newdoc proposal (what the help docs must say) and a whatsnew draft (the public changelog
+    // entry). Different readers, reviewed separately.
+    const jobs: string[] = [];
+
     // Enqueue B1 work only for a default-branch push that actually touched files. A tag push, a
     // branch delete or an empty push produces no job — an empty queue entry costs a worker cycle
     // and yields nothing.
-    let job: string | null = null;
     if (type === 'push' && isDefaultBranchPush(payload)) {
       const { files, truncated } = changedFiles(payload as any);
       if (files.length) {
@@ -76,7 +80,7 @@ export async function POST(req: Request) {
             }),
           ],
         );
-        job = r.rows[0].id;
+        jobs.push(r.rows[0].id);
       }
     }
 
@@ -99,10 +103,25 @@ export async function POST(req: Request) {
           }),
         ],
       );
-      job = r.rows[0].id;
+      jobs.push(r.rows[0].id);
+
+      const w = await q<{ id: string }>(
+        `insert into jobs (kind, payload) values ('whatsnew', $1::jsonb) returning id`,
+        [
+          JSON.stringify({
+            source: 'release',
+            repo: p?.repository?.full_name ?? null,
+            tag: p?.release?.tag_name ?? null,
+            name: p?.release?.name ?? null,
+            body: typeof p?.release?.body === 'string' ? p.release.body.slice(0, 20000) : '',
+            url: p?.release?.html_url ?? null,
+          }),
+        ],
+      );
+      jobs.push(w.rows[0].id);
     }
 
-    return json({ ok: true, id, job });
+    return json({ ok: true, id, jobs });
   } catch {
     return json({ error: 'storage failed' }, 500);
   }
