@@ -28,6 +28,14 @@ import {
 } from './index.mjs';
 import { areasForFile, rankAreas, pickArticles, buildBody } from './staleness.mjs';
 import { scrubSuggestions, buildPrompt as buildNewdocPrompt } from './newdoc.mjs';
+import {
+  checkEntry,
+  featureFromJob,
+  parseEntry,
+  buildBody as buildWhatsNewBody,
+  buildPrompt as buildWhatsNewPrompt,
+  CATEGORY_TAGS,
+} from './whatsnew.mjs';
 
 let checks = 0;
 // async-aware so the §6.3 fail-closed paths can be exercised; still exits non-zero on the
@@ -583,8 +591,6 @@ await ok('buildPrompt: carries window/top and states the PII rule', () => {
   assert.match(p, /STRICT JSON/);
 });
 
-console.log(`\n${checks} checks passed`);
-
 // ---- B1 staleness (CONTRACT §3, BLUEPRINT §5) --------------------------------
 
 const PREFIXES = {
@@ -709,3 +715,151 @@ await ok('extractJson: every payload shape is recognised, not just workstream A\
   // And workstream A is unaffected.
   assert.deepEqual(extractJson(JSON.stringify({ is_error: false, result: JSON.stringify(PAYLOAD) })), PAYLOAD);
 });
+
+// ---------------------------------------------------------------- workstream C: What's New
+//
+// kf-whatsnew-writer ships a quality checklist meant for a human. A model asked to grade itself
+// against a checklist passes it, so whatsnew.mjs decides the decidable half mechanically. These
+// tests are what make that claim true — if the checker stops catching a banned word, the entry
+// still reads fine and nothing else in the system notices.
+
+// A compliant entry, used as the baseline every negative case perturbs by exactly one field.
+const WN_GOOD = {
+  hs_name: 'Field Level Access Control for Forms',
+  short_description: 'Decide who sees each field. Set it once on the form, applies everywhere.',
+  description:
+    '<p><strong>Field-level access control</strong> lets you set visibility and edit rights on ' +
+    'each field instead of the whole form. Set the rule once and it applies in every view the ' +
+    'field appears in, including reports and the mobile app.</p><ul><li><strong>Per role</strong>: ' +
+    'choose view, edit or hidden for each role on the form.</li><li><strong>Applies everywhere</strong>: ' +
+    'table view, detail view, exports and printed copies all honour the same rule.</li>' +
+    '<li><strong>No formulas needed</strong>: replaces the conditional-visibility workarounds ' +
+    'people built by hand.</li></ul><p>Existing forms keep their current behaviour until you ' +
+    'change a field.</p>',
+  tags: ['Forms'],
+};
+
+const wnProblem = (patch, needle) => {
+  const problems = checkEntry({ ...WN_GOOD, ...patch });
+  assert.ok(
+    problems.some((p) => p.includes(needle)),
+    `expected a problem mentioning "${needle}", got ${JSON.stringify(problems)}`,
+  );
+};
+
+await ok('whatsnew: a compliant entry trips nothing', () => {
+  // Guards the direction that costs most: a checker that rejects good work trains a writer to
+  // ignore every problem it reports.
+  assert.deepEqual(checkEntry(WN_GOOD), []);
+});
+
+await ok("whatsnew: the skill's field rules are enforced, not suggested", () => {
+  wnProblem({ hs_name: 'Editable Grid' }, 'should be 5-8');
+  wnProblem({ hs_name: 'Introducing Kissflow Portals for External Users and Vendors and Partners' }, 'should be 5-8');
+  wnProblem({ hs_name: 'Field Level Access Control for Forms.' }, 'period');
+  wnProblem({ hs_name: 'Field Level Access Control Ships Now!' }, 'exclamation');
+  wnProblem({ short_description: WN_GOOD.short_description.repeat(4) }, 'under 30');
+  wnProblem({ short_description: '' }, 'empty');
+  wnProblem({ description: '<p>Too short.</p>' }, 'should be 70-100');
+});
+
+await ok('whatsnew: only the HTML the skill allows survives', () => {
+  wnProblem({ description: WN_GOOD.description + '<div>wrapper</div>' }, '<div>');
+  wnProblem({ description: WN_GOOD.description.replace('<p>', '<p style="color:red">') }, 'inline style');
+  // <a> IS allowed — the skill invites a docs link, and rejecting it would push writers to strip
+  // the one useful link in the entry.
+  assert.deepEqual(
+    checkEntry({ ...WN_GOOD, description: WN_GOOD.description.replace('</p><ul>', ' <a href="https://help.kissflow.com/forms">Docs</a></p><ul>') }),
+    [],
+  );
+});
+
+await ok('whatsnew: the vocabulary ban catches inflections, not just exact words', () => {
+  // The whole reason the checker exists. A model told to avoid these words still reaches for them,
+  // and "seamless" in a Kissflow release note is the tell that it was not written by a person.
+  wnProblem({ short_description: 'A seamless way to control access on each field.' }, 'seamless');
+  wnProblem({ short_description: 'This unlocks per-field control for every role.' }, 'unlock');
+  wnProblem({ hs_name: 'Robust Field Access Control for Forms' }, 'robust');
+  wnProblem({ short_description: 'Additionally, you can set this per role now.' }, 'additionally');
+  // Banned words hiding inside HTML markup are still banned — the check reads rendered text.
+  wnProblem({ description: WN_GOOD.description.replace('<strong>Per role</strong>', '<strong>Seamless</strong>') }, 'seamless');
+});
+
+await ok('whatsnew: category tags must come from the canonical set', () => {
+  wnProblem({ tags: [] }, 'no category tag');
+  wnProblem({ tags: ['Workflows'] }, 'canonical');
+  assert.deepEqual(checkEntry({ ...WN_GOOD, tags: ['Forms', 'Platform'] }), []);
+  // The set is the one the public page filters by; an entry tagged outside it is unfilterable.
+  assert.ok(CATEGORY_TAGS.includes('Account Administration'));
+});
+
+await ok('whatsnew: both triggers normalise to the same feature shape', () => {
+  // These payloads are exactly what the routes insert — hooks/github for a published release,
+  // hooks/generic for a feature flag. If either route changes its shape, this fails.
+  assert.deepEqual(
+    featureFromJob({ source: 'release', repo: 'kissflow/xg', tag: 'v2.1.0', name: 'Portals', body: 'Adds portals.', url: null }),
+    { source: 'release', name: 'Portals', type: null, notes: 'Adds portals.', area: null, ref: 'v2.1.0', url: null },
+  );
+  assert.deepEqual(
+    featureFromJob({ source: 'feature-flag', flag: 'grid_edit', name: null, description: 'Inline grid editing.', area: 'forms-fields', url: null }),
+    { source: 'feature-flag', name: 'grid_edit', type: 'New', notes: 'Inline grid editing.', area: 'forms-fields', ref: 'grid_edit', url: null },
+  );
+  // A release with no title falls back to the tag; a flag with a human-set name prefers it over
+  // the key, because `grid_edit` is a bad headline and the model would dutifully keep it.
+  assert.equal(featureFromJob({ source: 'release', tag: 'v2.1.0' }).name, 'v2.1.0');
+  assert.equal(featureFromJob({ source: 'feature-flag', flag: 'grid_edit', name: 'Editable Grid' }).name, 'Editable Grid');
+  // Nothing to write from, which is the case main() refuses to draft rather than inventing.
+  assert.equal(featureFromJob({}).name, null);
+  assert.equal(featureFromJob({ source: 'release', body: '   ' }).notes, null, 'whitespace is absent, not present');
+  assert.equal(featureFromJob({ source: 'nonsense', name: 'X' }).source, 'release', 'unknown source is a release');
+});
+
+await ok('whatsnew: the prompt carries facts and forbids invention', () => {
+  const p = buildWhatsNewPrompt(featureFromJob({ source: 'release', tag: 'v2.1.0', name: 'Portals', body: 'Adds portals.' }));
+  assert.match(p, /kf-whatsnew-writer/);
+  assert.match(p, /Portals/);
+  // §6.2 has no mechanical detection for a person or customer name, so the prompt is the only
+  // thing standing between a release body that names one and a published draft that repeats it.
+  assert.match(p, /Do NOT include any customer name/);
+  assert.match(p, /do not invent a benefit/);
+  // Absent fields are omitted rather than sent as "null", which the model reads as a value.
+  assert.ok(!/null/.test(p), 'no null literals reach the prompt');
+});
+
+await ok('whatsnew: model output is parsed or rejected, never half-accepted', () => {
+  assert.equal(parseEntry(JSON.stringify(WN_GOOD)).hs_name, WN_GOOD.hs_name);
+  // The CLI's --output-format json wrapper, which is what actually arrives.
+  assert.deepEqual(parseEntry(JSON.stringify({ is_error: false, result: JSON.stringify(WN_GOOD) })).tags, ['Forms']);
+  assert.deepEqual(parseEntry(JSON.stringify({ is_error: false, result: '```json\n' + JSON.stringify(WN_GOOD) + '\n```' })).tags, ['Forms']);
+  for (const bad of ['not json at all', JSON.stringify({ hs_name: 'x' }), JSON.stringify({})]) {
+    assert.throws(() => parseEntry(bad), /missing|could not find JSON/);
+  }
+});
+
+await ok('whatsnew: the suggestion body survives the §6.1 guard it will be POSTed through', () => {
+  // The failure this prevents is silent: a body that trips the guard is rejected by the API with
+  // a 400 that reads like a transport error, and the draft is lost.
+  const clean = buildWhatsNewBody(WN_GOOD, { source: 'release', ref: 'v2.1.0' }, []);
+  assert.equal(piiRule(clean), null);
+  assert.ok(clean.includes(WN_GOOD.hs_name) && clean.includes(WN_GOOD.short_description));
+
+  // The skill invites a docs link, so the allowed-host path has to hold: `help` is a PUBLIC_LABEL
+  // and kissflow.com is a bare registrable domain, so this survives where a tenant host would not.
+  const linked = buildWhatsNewBody(
+    { ...WN_GOOD, description: WN_GOOD.description + '<p><a href="https://help.kissflow.com/forms">Learn more</a></p>' },
+    { source: 'release', ref: 'v2.1.0' }, []);
+  assert.equal(piiRule(linked), null);
+
+  // Problems are stated up front. An entry that looks finished and is not costs more than one
+  // that admits what is wrong with it.
+  const dirty = buildWhatsNewBody(WN_GOOD, { source: 'feature-flag', ref: 'grid_edit' }, ['title is 3 words, should be 5-8']);
+  assert.match(dirty, /\*\*Check before posting:\*\*/);
+  assert.match(dirty, /feature flag/);
+  assert.match(clean, /passes every mechanical check/);
+});
+
+// The summary belongs at the END. It used to sit mid-file, so every suite appended after it —
+// B1, C, and What's New — ran but went uncounted, and the number quoted in commit messages was
+// the count as of whenever the line was passed. A test count that silently excludes the newest
+// tests is worse than no count: it reads as coverage.
+console.log(`\n${checks} checks passed`);

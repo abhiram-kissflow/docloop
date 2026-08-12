@@ -33,19 +33,17 @@ export function parseFlags(argv = process.argv.slice(2)) {
     allowPositionals: false,
     options: {
       'dry-run': { type: 'boolean', default: false },
-      'self-check': { type: 'boolean', default: false },
       help: { type: 'boolean', default: false },
     },
   });
-  return { dryRun: values['dry-run'], selfCheck: values['self-check'], help: values.help };
+  return { dryRun: values['dry-run'], help: values.help };
 }
 
 const USAGE = `docloop What's New worker — turn a release into a public changelog entry.
 
   node whatsnew.mjs [--dry-run]
 
-  --dry-run     claim nothing, POST nothing; print the entry the last-seen job would produce
-  --self-check  run the pure-logic assertions and exit (no network, no env needed)
+  --dry-run   claim nothing, POST nothing; print the entry the last-seen job would produce
 
 Env: DOCLOOP_API_URL, WORKER_API_KEY, optionally CLAUDE_BIN
 `;
@@ -132,35 +130,36 @@ export function checkEntry(entry) {
 // split B1 uses, and for the same reason — a webhook doing real work times out.
 
 /**
- * Raw job payload → the fields kf-whatsnew-writer's input template asks for.
- * Unknown/missing fields become null rather than a guess: an invented benefit is worse than an
- * absent one, because the model will happily write around it.
+ * Job payload → the fields kf-whatsnew-writer's input template asks for.
+ *
+ * The payload is already FLAT: both routes extract and bound the fields at the boundary (§6.6),
+ * so this only renames and fills gaps. Missing fields become null rather than a guess — an
+ * invented benefit is worse than an absent one, because the model writes around it convincingly.
  */
 export function featureFromJob(payload) {
-  const source = payload?.source === 'feature-flag' ? 'feature-flag' : 'release';
-  const e = payload?.event ?? {};
-
-  if (source === 'feature-flag') {
+  const p = payload ?? {};
+  if (p.source === 'feature-flag') {
     return {
-      source,
-      name: str(e.flag ?? e.name),
+      source: 'feature-flag',
+      // The flag key is a poor headline (`grid_edit`), so a human-set name wins when present.
+      name: str(p.name) || str(p.flag),
+      // A flag flip only ever reveals something new; a rollback never reaches here.
       type: 'New',
-      notes: str(e.description ?? e.notes),
-      area: str(e.area),
-      ref: str(e.flag),
+      notes: str(p.description),
+      area: str(p.area),
+      ref: str(p.flag) || str(p.name),
+      url: str(p.url),
     };
   }
-
-  const rel = e.release ?? e;
   return {
-    source,
-    name: str(rel.name) || str(rel.tag_name),
-    // A release is only ever announced as shipped; New vs Improved is the model's call from the
-    // notes, and the prompt asks for it explicitly.
+    source: 'release',
+    name: str(p.name) || str(p.tag),
+    // New vs Improved is the model's call from the notes, and the prompt asks for it explicitly.
     type: null,
-    notes: str(rel.body),
+    notes: str(p.body),
     area: null,
-    ref: str(rel.tag_name),
+    ref: str(p.tag),
+    url: str(p.url),
   };
 }
 
@@ -250,7 +249,6 @@ async function main() {
     console.log(USAGE);
     return;
   }
-
   const auth = requireEnv();
   const job = await claimJob('whatsnew', auth);
   if (!job) {
@@ -301,6 +299,7 @@ async function main() {
 
   await report(job, auth, 'done', { created: r.created, problems: problems.length, tags: entry.tags });
 }
+
 
 // §6.4: counts and field names only — never the draft itself.
 const report = (job, auth, status, result) =>
