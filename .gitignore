@@ -8,3 +8,6 @@ node_modules/
 # agent scratch — screenshots and MCP artifacts, never committed
 .playwright-mcp/
 *.png
+
+# serve.sh pidfile — local runtime state, never committed
+.serve.pid
