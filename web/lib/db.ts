@@ -7,9 +7,20 @@ const g = globalThis as unknown as { __docloopPool?: Pool };
 
 const connectionString = process.env.DATABASE_URL;
 
-// Hosted Postgres (Vercel Marketplace) terminates TLS with a chain node-postgres
-// won't verify by default; local Postgres has no TLS at all.
+// Three ways this connects, and only one of them wants TLS.
+//
+//   local          postgresql://you@localhost:5432/docloop        no TLS at all
+//   Cloud SQL      postgresql://u:p@/docloop?host=/cloudsql/…     UNIX SOCKET — no TLS either
+//   hosted TCP     postgresql://u:p@host.example.com/db           TLS, chain node-postgres
+//                                                                 will not verify by default
+//
+// The socket case is the trap. Cloud Run reaches Cloud SQL over a unix socket at
+// /cloudsql/<connection-name>, which carries no hostname and therefore matched neither branch of
+// the old check — so `ssl` was set on a transport that cannot do TLS, and every query failed with
+// a connection error that reads like a bad password. Socket connections are detected explicitly.
+const isSocket = /host=\/cloudsql\/|^\/|host=%2Fcloudsql/.test(connectionString ?? '');
 const isLocal = /(^|@|\/\/)(localhost|127\.0\.0\.1)/.test(connectionString ?? '');
+const noTls = isSocket || isLocal || !connectionString;
 
 export const pool: Pool =
   g.__docloopPool ??
@@ -18,7 +29,7 @@ export const pool: Pool =
     max: 3,
     idleTimeoutMillis: 10_000,
     connectionTimeoutMillis: 5_000,
-    ssl: isLocal || !connectionString ? undefined : { rejectUnauthorized: false },
+    ssl: noTls ? undefined : { rejectUnauthorized: false },
   }));
 
 /** Parameterised query. NEVER interpolate user input into `sql`. */

@@ -1,0 +1,23 @@
+# What NOT to upload to Cloud Build. Everything here is either rebuilt on the server, secret, or
+# irrelevant to the running app.
+#
+# .env.local is the important line. Cloud Run gets its configuration from --set-env-vars and
+# Secret Manager, never from a file in the image — an uploaded .env.local would bake the database
+# password and the dashboard password into every layer of a stored container image.
+
+.env
+.env.local
+.env.*.local
+
+node_modules/
+.next/
+out/
+
+# Local build cache and editor noise
+tsconfig.tsbuildinfo
+.DS_Store
+*.log
+
+# Agent scratch
+.playwright-mcp/
+*.png

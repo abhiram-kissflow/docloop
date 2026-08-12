@@ -25,7 +25,7 @@ first four rows do.
 | Media pipeline — GIFs and narrated video for a suggestion | Designed, not built. Needs a demo account with no customer data. |
 | Publish-back — push an approved edit to the doc platform | Designed, not built. |
 | Unattended scheduling (launchd) | Written, not loaded. Every run today is one you start. |
-| Public deployment | Not deployed. There is no hosted database yet; it runs on this Mac only. |
+| Public deployment | Not deployed yet. Target is Google Cloud Run, not Vercel — `scripts/deploy-gcp.sh` is written and waiting on a `gcloud auth login`. |
 
 ## Start it
 
@@ -250,6 +250,7 @@ twice and is recorded in the amendment notes in §6.
 
 ```
 web/       Next.js App Router. Receives webhooks, stores events, serves the review dashboard.
+           Deploys to Google Cloud Run; the database is Cloud SQL Postgres in the same project.
 worker/    Plain Node, zero dependencies. Does the work Vercel cannot: Claude Code, Playwright, ffmpeg.
 scripts/   One-off imports and index maintenance. Each emits SQL; you pipe it to psql.
 fixtures/  The taxonomy, the code and category maps, and shared test fixtures.
