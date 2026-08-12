@@ -12,10 +12,13 @@ import { absoluteTime, plural, relativeTime } from './format';
 export default function Header({
   pending,
   lastRun,
+  nav,
   children,
 }: {
   pending: number | null;
   lastRun: string | null;
+  /** The source filter. Sits on its own row so it reads as navigation, not as an affordance. */
+  nav?: ReactNode;
   children?: ReactNode;
 }) {
   return (
@@ -36,6 +39,7 @@ export default function Header({
       )}
 
       <div className="ml-auto flex items-center gap-2">{children}</div>
+      {nav}
     </header>
   );
 }

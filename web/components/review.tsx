@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Header from './header';
+import SourceNav from './source-nav';
 import { absoluteTime, plural, relativeTime, suggestionTitle } from './format';
 import { WORKER_COMMAND, type Stats, type Suggestion } from './types';
 
@@ -21,14 +22,26 @@ function safeHref(url: string | null): string | null {
   }
 }
 
+/** Human label for a source value. The raw slugs are internal vocabulary, not reader-facing. */
+function sourceLabel(source: string): string {
+  if (source === 'mining') return 'ticket';
+  if (source === 'staleness') return 'code change';
+  if (source === 'release') return 'release';
+  if (source === 'whatsnew') return "what's new";
+  return source;
+}
+
 export default function Review({
   suggestions,
   stats,
   dbError,
+  activeSource = null,
 }: {
   suggestions: Suggestion[];
   stats: Stats;
   dbError: string | null;
+  /** The ?source= filter in force, so the nav can mark the current view. */
+  activeSource?: string | null;
 }) {
   const router = useRouter();
 
@@ -266,7 +279,7 @@ export default function Review({
   if (rows.length === 0) {
     return (
       <div className="dl-app">
-        <Header pending={0} lastRun={stats.lastRun}>
+        <Header pending={0} lastRun={stats.lastRun} nav={<SourceNav active={activeSource} bySource={stats.bySource} />}>
           <Link className="dl-btn dl-btn--quiet" href="/patterns">
             Patterns
           </Link>
@@ -284,7 +297,7 @@ export default function Review({
 
   return (
     <div className="dl-app">
-      <Header pending={pending} lastRun={stats.lastRun}>
+      <Header pending={pending} lastRun={stats.lastRun} nav={<SourceNav active={activeSource} bySource={stats.bySource} />}>
         <Link className="dl-btn dl-btn--quiet" href="/patterns">
           Patterns
         </Link>
@@ -318,7 +331,7 @@ export default function Review({
                   >
                     <span className="dl-row-title block truncate">{suggestionTitle(s)}</span>
                     <span className="dl-row-meta">
-                      <span className="dl-pill dl-pill--pending">pending</span>
+                      <span className={`dl-pill dl-pill--src dl-src-${s.source}`}>{sourceLabel(s.source)}</span>
                       <span className="dl-mono">{s.type}</span>
                       {s.ticketCount !== null && (
                         <span className="dl-mono">

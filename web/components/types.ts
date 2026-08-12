@@ -4,6 +4,8 @@
 export type Suggestion = {
   id: string;
   type: string;
+  /** Which workstream raised this: 'mining' | 'staleness' | 'release' | 'whatsnew'. */
+  source: string;
   body: string;
   createdAt: string;
   patternLabel: string | null;
@@ -35,6 +37,8 @@ export type Stats = {
   tickets: number;
   questionnaires: number;
   lastRun: string | null;
+  /** Pending count per source, so the nav can show what is actually there. */
+  bySource: Record<string, number>;
 };
 
 export const EMPTY_STATS: Stats = {
@@ -45,6 +49,7 @@ export const EMPTY_STATS: Stats = {
   tickets: 0,
   questionnaires: 0,
   lastRun: null,
+  bySource: {},
 };
 
 /** The command that produces everything on this screen. */

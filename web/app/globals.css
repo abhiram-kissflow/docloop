@@ -162,8 +162,9 @@
   .dl-header {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 16px;
-    height: 49px;
+    min-height: 49px;
     padding: 0 20px;
     border-bottom: 1px solid var(--line);
     background: var(--bg);
@@ -402,6 +403,36 @@
   .dl-link:hover  { color: var(--primary);       text-decoration-color: var(--primary); }
   .dl-link:active { color: var(--primary-hover); text-decoration-color: var(--primary-hover); }
 
+  /* Top nav — the source filter. Its own row under the title, so it reads as navigation rather
+     than as one more button among the affordances. */
+  .dl-nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0 -6px 6px;
+  }
+
+  .dl-nav-item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: var(--t-sm);
+    color: var(--muted);
+    text-decoration: none;
+    transition: background 120ms var(--ease), color 120ms var(--ease);
+  }
+  .dl-nav-item:hover { background: var(--surface); color: var(--ink); }
+  .dl-nav-item.is-active { color: var(--ink); font-weight: 500; background: var(--primary-tint); }
+  /* A source with nothing pending stays visible, quieter. A nav whose items appear and disappear
+     teaches nobody what the system does. */
+  .dl-nav-item.is-empty { opacity: 0.55; }
+  .dl-nav-count { color: var(--muted); font-size: var(--t-meta); }
+  .dl-nav-item.is-active .dl-nav-count { color: var(--primary); }
+
   /* Status pill — tint fill, dark ink, no border, no icon. */
   .dl-pill {
     display: inline-block;
@@ -412,6 +443,17 @@
     line-height: 1.5;
   }
   .dl-pill--pending   { background: var(--accent-tint); color: var(--accent-ink); }
+
+  /* Source badge. Deliberately NOT four saturated colours: four producers colour-coded turns the
+     queue into a chart, and DESIGN.md bans status carried by colour alone. It is a quiet neutral
+     chip carrying a WORD — the word is the information. Only 'what's new' is tinted, because a
+     drafted changelog entry is the one row a reviewer treats differently from a proposal. */
+  .dl-pill--src {
+    background: var(--surface);
+    color: var(--muted);
+    border: 1px solid var(--line);
+  }
+  .dl-src-whatsnew { background: var(--accent-tint); color: var(--accent-ink); border-color: transparent; }
   .dl-pill--approved  { background: var(--ok-tint);     color: var(--ok-ink); }
   .dl-pill--dismissed { background: var(--surface);     color: var(--muted); }
 

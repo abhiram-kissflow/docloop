@@ -32,11 +32,54 @@ export function plural(n: number, one: string, many = `${one}s`): string {
   return n === 1 ? one : many;
 }
 
-/** The queue row title. Never invents text: falls back to what is actually known. */
+/**
+ * The queue row title. Never invents text: falls back to what is actually known.
+ *
+ * The body fallback matters more than it looks. A What's New draft has no pattern and no linked
+ * article, so it used to render as "Unlinked create suggestion" — hiding its actual headline
+ * ("Introducing Editable Grid for Table Views") until you clicked it. The single most reviewable
+ * row in the queue looked like a null.
+ */
 export function suggestionTitle(s: {
   patternLabel: string | null;
   articleTitle: string | null;
+  body?: string;
   type: string;
 }): string {
-  return s.patternLabel ?? s.articleTitle ?? `Unlinked ${s.type} suggestion`;
+  return (
+    s.patternLabel ?? s.articleTitle ?? firstHeading(s.body) ?? `Unlinked ${s.type} suggestion`
+  );
 }
+
+/**
+ * First markdown heading, or the value under a bold field label, if there is one.
+ *
+ * The field-label case is not hypothetical: a What's New draft is a list of `**hs_name:**` style
+ * labels with the value on the NEXT line, so taking the bold text gave every such row the title
+ * "hs_name:" — a field name where the actual headline should be. A bold lead that looks like a
+ * key (ends in a colon, or is a single lower-case token) means the title is the line below it.
+ */
+function firstHeading(body?: string): string | null {
+  if (!body) return null;
+  const lines = body.split('\n', 24).map((l) => l.trim());
+  for (let i = 0; i < lines.length; i++) {
+    const t = lines[i];
+    if (!t) continue;
+
+    const heading = /^#{1,4}\s+(.+)$/.exec(t);
+    if (heading) return clip(heading[1]);
+
+    const bold = /^\*\*(.+?)\*\*:?\s*$/.exec(t);
+    if (bold) {
+      const label = bold[1].trim();
+      const looksLikeKey = label.endsWith(':') || /^[a-z][a-z0-9_]*$/.test(label);
+      if (!looksLikeKey) return clip(label);
+      // A label alone on a line: the value is the next non-empty line.
+      const value = lines.slice(i + 1).find(Boolean);
+      if (value) return clip(value.replace(/^\*\*|\*\*$/g, ''));
+    }
+  }
+  return null;
+}
+
+const clip = (s: string) => s.trim().slice(0, 90);
