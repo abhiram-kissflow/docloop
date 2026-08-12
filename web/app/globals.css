@@ -48,7 +48,11 @@
   --t-lg:    1.5rem;     /* 24px — page title */
 
   /* Layout */
-  --queue-w: 420px;
+  /* The queue is the working surface; the evidence pane is capped by its own measure and simply
+     ran out of text to hold on a wide screen, leaving ~370px of white at 1440px while titles
+     truncated mid-word two panes to the left. It scales with the viewport now and stops at 560px,
+     because past that the row title stops being scannable in one fixation. */
+  --queue-w: clamp(380px, 30vw, 560px);
   --prose-w: 68ch;
 
   /* z-index scale — semantic, never arbitrary */
@@ -230,6 +234,9 @@
     border-left: 2px solid transparent;
     border-bottom: 1px solid var(--line);
     background: var(--bg);
+    /* A <button> defaults to cursor: default, so the whole queue — every row on the page —
+       looked unclickable to a mouse. .dl-btn set this; the rows never did. */
+    cursor: pointer;
     transition: background-color var(--dur-color) var(--ease);
   }
 

@@ -336,7 +336,13 @@ export default function Review({
                       setView('evidence');
                     }}
                   >
-                    <span className="dl-row-title block truncate">{suggestionTitle(s)}</span>
+                    {/* The title is truncated, and API-reference titles truncate mid-word
+                        ("Retrieve process report item det…"). The full string is available on
+                        hover without opening the row. Supplementary only — the accessible name
+                        still comes from the visible text, so nothing depends on a tooltip. */}
+                    <span className="dl-row-title block truncate" title={suggestionTitle(s)}>
+                      {suggestionTitle(s)}
+                    </span>
                     <span className="dl-row-meta">
                       <span className={`dl-pill dl-pill--src dl-src-${s.source}`}>{sourceLabel(s.source)}</span>
                       <span className="dl-mono">{s.type}</span>
