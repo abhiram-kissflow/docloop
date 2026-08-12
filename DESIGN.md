@@ -154,6 +154,21 @@ selecting a row pushes the evidence view over it with a back affordance. Type si
 **z-index scale** (semantic, never arbitrary): `--z-sticky: 10`, `--z-dropdown: 20`,
 `--z-overlay: 30`, `--z-toast: 40`.
 
+### Corner radius
+
+Four named steps. Radius was the last axis in the stylesheet still written as raw pixels, and it
+had drifted to five values — 3, 4, 6, 8 and 999 — across seven rules. Three and four pixels apart
+is not a decision anyone made; it is what happens when each rule picks its own number.
+
+```css
+--radius-sm:   4px;   /* skeletons, keycaps — things smaller than a button */
+--radius-md:   6px;   /* buttons, inputs, nav items — the default */
+--radius-lg:   8px;   /* overlays and raised panels */
+--radius-pill: 999px; /* status pills only */
+```
+
+A fifth step is not a new decision to make — it is evidence the scale is being avoided.
+
 ## Components
 
 Every interactive component ships default, hover, focus-visible, active, disabled, loading, and
@@ -231,3 +246,7 @@ dropped to `<body>`.
   the selected row and nothing else.
 - No icon-plus-heading-plus-text grids.
 - No emoji anywhere in the interface.
+  - This now has a data-side edge. The imported documentation carries emoji inside
+    `articles.category` ("📒 User guide / Forms & Expressions"), because the doc platform's own
+    category tree uses them. Storing that is fine; RENDERING it is not. Any view that surfaces a
+    category must strip leading emoji first. The ban is on the interface, not the database.

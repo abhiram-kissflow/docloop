@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4
+ * design-system: DESIGN.md (project root) — this surface is system-managed, and the system
+ *   predates Hallmark. Per Hallmark's own precedence rule a root DESIGN.md overrides theme and
+ *   macrostructure selection, so NO theme was picked and NO macrostructure was rotated: the
+ *   diversification rule is inverted here — the two routes must share the system, not differ.
+ * genre: modern-minimal · macrostructure: Workbench (queue + evidence, two panes, no hero)
+ * theme: none — DESIGN.md's own token set (paper oklch(1 0 0) · accent oklch(0.420 0.140 282)
+ *   violet · display + body IBM Plex Sans, mono IBM Plex Mono)
+ * enrichment: none — typography only. This is a triage surface; an illustration would be a lie
+ *   about what the page is for.
+ * audit: 0 critical · 2 major (missing stamp, un-tokenised radius) · 1 minor — both majors fixed
+ *   in this change; the minor is data-side and recorded in DESIGN.md §Bans.
+ * a11y: 0 axe violations across 6 views, verified logged-in with row counts
+ */
+
 /* ---------------------------------------------------------------------------
    Tokens — DESIGN.md §Color, §Typography, §Layout, §Motion.
    Values are verbatim from DESIGN.md. This file is the ONLY place in the
@@ -66,6 +81,16 @@
   --dur-color: 120ms;
   --dur-leave: 180ms;
   --dur-pane:  200ms;
+
+  /* Corner radius. Every colour, size, duration and z-index in this file was a named token;
+     radius was the one axis still hard-coded, and it had drifted to FIVE raw values — 3, 4, 6, 8
+     and 999 — across seven rules. Three and four pixels apart is not a decision anyone made, it
+     is what happens when each rule picks its own number. Four steps, named, and the 3px skeleton
+     joins the 4px step. */
+  --radius-sm:   4px;   /* skeletons, keycaps — things smaller than a button */
+  --radius-md:   6px;   /* buttons, inputs, nav items — the default */
+  --radius-lg:   8px;   /* overlays and raised panels */
+  --radius-pill: 999px; /* status pills only */
 }
 
 /* ---------------------------------------------------------------------------
@@ -351,7 +376,7 @@
     height: 32px;
     padding: 0 14px;
     border: 1px solid transparent;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: var(--t-sm);
     font-weight: 500;
     line-height: 1;
@@ -433,7 +458,7 @@
     align-items: baseline;
     gap: 6px;
     padding: 4px 8px;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: var(--t-sm);
     color: var(--muted);
     text-decoration: none;
@@ -462,7 +487,7 @@
   .dl-pill {
     display: inline-block;
     padding: 1px 8px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     font-size: var(--t-meta);
     font-weight: 500;
     line-height: 1.5;
@@ -489,7 +514,7 @@
     text-align: center;
     background: var(--surface);
     border: 1px solid var(--line);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-family: var(--font-plex-mono), ui-monospace, monospace;
     font-size: var(--t-meta);
     color: var(--ink);
@@ -502,7 +527,7 @@
     background: var(--bg);
     color: var(--ink);
     border: 1px solid var(--line-strong);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: var(--t-sm);
     font-family: inherit;
     transition: border-color var(--dur-color) var(--ease);
@@ -516,7 +541,7 @@
   .dl-skel {
     display: block;
     background: var(--surface);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     height: 10px;
   }
 
@@ -552,7 +577,7 @@
     padding: 20px;
     background: var(--bg);
     border: 1px solid var(--line-strong);
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
   }
 
   /* --- narrow: one pane, evidence pushes over the queue ----------------- */
