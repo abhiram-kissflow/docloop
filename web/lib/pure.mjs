@@ -128,7 +128,14 @@ const MULTI_PART_SUFFIXES = new Set(['co.uk', 'co.in', 'com.au', 'co.nz', 'co.jp
 // backtracks across the whole string from every start offset. On a long run of one character it
 // measured 1250=3ms, 2500=11ms, 5000=54ms — quadratic, on a rule that had nothing to do with
 // email. Bounding costs no real hostname and makes it linear.
-const HOST_IN_PROSE = /\b(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.){2,}[A-Za-z]{2,}\b/g;
+// The negative lookbehind excludes a dotted token preceded by `/` — that is a FILE PATH, not a
+// host. B1 puts repo paths in suggestion bodies, and without this `src/comment/draft.store.ts`
+// reads as the hostname `draft.store.ts` and silently drops the whole suggestion. A hostname in
+// prose is never preceded by a slash; a filename inside a path always is.
+// Residual (§6.2): a BARE multi-dot filename at a token boundary — `config.staging.json` with no
+// directory — still reads as a host and drops. B1 always emits full repo-relative paths, so it
+// does not hit this, and dropping is the safe direction anyway.
+const HOST_IN_PROSE = /(?<![\/\w.])(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.){2,}[A-Za-z]{2,}\b/g;
 const HOST_AFTER_SCHEME = /https?:\/\/([^\s/?#"'<>)\]]+)/gi;
 const HOST_PROTOCOL_REL = /(?:^|[\s(<"'[])\/\/([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+)/g;
 const HOST_WWW = /\bwww\.[A-Za-z0-9.-]*[A-Za-z0-9]/gi;
