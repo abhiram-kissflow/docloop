@@ -56,8 +56,13 @@ if exists gcloud sql instances describe "$SQL_INSTANCE"; then
   echo "already exists, leaving it alone"
 else
   echo "creating — this takes several minutes, which is normal"
+  # --edition=ENTERPRISE is REQUIRED and is the CHEAP one, despite how the names read. The project
+  # defaults to ENTERPRISE_PLUS, which does not offer db-f1-micro at all and fails the create with
+  # "Invalid Tier (db-f1-micro) for (ENTERPRISE_PLUS) Edition". Without this flag you either get an
+  # error or, worse, talk yourself into a far more expensive machine type.
   gcloud sql instances create "$SQL_INSTANCE" \
     --database-version=POSTGRES_17 \
+    --edition=ENTERPRISE \
     --tier=db-f1-micro \
     --region="$REGION" \
     --storage-type=HDD \
@@ -102,6 +107,21 @@ for name in DASHBOARD_PASSWORD GITHUB_WEBHOOK_SECRET GENERIC_HOOK_TOKEN WORKER_A
     echo "$secret created"
   fi
 done
+
+say "Letting the Cloud Run service account read the secrets"
+# The build can succeed and the revision still fail. Cloud Run runs as the compute service
+# account, and creating a secret does not grant that account permission to read it — the deploy
+# fails with "Permission denied on secret ... for Revision service account", which reads like a
+# problem with the secret rather than with IAM.
+PROJECT_NUMBER="$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')"
+RUNTIME_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+for secret in docloop-db-password docloop-dashboard-password docloop-github-webhook-secret \
+              docloop-generic-hook-token docloop-worker-api-key; do
+  gcloud secrets add-iam-policy-binding "$secret" \
+    --member="serviceAccount:${RUNTIME_SA}" \
+    --role="roles/secretmanager.secretAccessor" >/dev/null
+done
+echo "granted secretAccessor to $RUNTIME_SA on 5 secrets"
 
 say "Deploying to Cloud Run from source"
 # --source builds with Cloud Build's Node buildpack. No Dockerfile and no local Docker daemon,

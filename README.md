@@ -264,21 +264,40 @@ passes when the thing it guards is broken is worse than no tests, because it is 
 It runs on this Mac today. To put it on the internet, it goes to **Google Cloud Run** in the
 `kf-dev-research-ai` project, with **Cloud SQL Postgres** beside it.
 
-> **Not yet run.** Every other command in this file was executed before it was written. This one
-> has not been, because it needs an interactive `gcloud auth login` that an agent session cannot
-> perform. Treat this section as reviewed and unverified until the first real run.
+**It is deployed.** <https://docloop-767032787396.us-central1.run.app>, holding the same 795
+articles and the same queue. Log in with the same `DASHBOARD_PASSWORD`.
+
+A cold start takes a few seconds. That is the service scaling up from zero, not a hang.
+
+To deploy again after a code change:
 
 ```bash
-gcloud auth login          # you must run this yourself; it opens a browser
+gcloud auth login          # only if your token has expired
 ./scripts/deploy-gcp.sh
 ```
 
 The script is idempotent. Running it twice does not create a second database or a second service,
 and it never drops anything.
 
-Afterwards there are two manual steps it prints for you, because both are one-way: applying
-`web/schema.sql` to the new database, and pointing `DOCLOOP_API_URL` in `worker/.env.local` at the
-deployed URL. The workers keep running on this Mac either way; only the web half moves.
+### What the first deploy hit, so you are not surprised twice
+
+Both are fixed in the script, and both would otherwise look like something you did wrong.
+
+- **Cloud SQL refused the cheap tier.** The project defaults to the ENTERPRISE_PLUS edition, which
+  does not allow `db-f1-micro` at all. The tier has to be asked for with `--edition=ENTERPRISE`,
+  which is the *cheaper* edition despite how the names read.
+- **The build succeeded and the revision still failed.** Cloud Run runs as a service account
+  (`…-compute@developer.gserviceaccount.com`) which could not read the secrets it was being handed.
+  Each secret needs `roles/secretmanager.secretAccessor` granted to that account.
+
+### The worker points at the deployed app
+
+`worker/.env.local` now has `DOCLOOP_API_URL=https://docloop-767032787396.us-central1.run.app`, so
+every worker you run on this Mac files its suggestions into the DEPLOYED queue.
+
+The two environments have **separate databases**. A run against the wrong one is not lost, it is
+filed in the other queue. To work against local again, set that variable back to
+`http://localhost:3000`.
 
 ### What it costs
 
